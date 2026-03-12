@@ -56,3 +56,11 @@
 
 ### 9. Version Control
 - [/] Push semua perubahan ke GitHub
+
+
+### 10. Phase 2.5 — Salary Range di Tracker
+- [x] Tambah kolom `salary_range` pada tabel `applications` (+ migration aman untuk DB existing)
+- [x] Implement `extract_salary_range(jd_text)` di analyzer
+- [x] Simpan hasil parse salary range saat save ke tracker
+- [x] Tampilkan kolom "Salary Range" di tab My Tracker
+- [x] Validasi compile + smoke test parsing

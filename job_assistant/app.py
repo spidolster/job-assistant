@@ -14,7 +14,12 @@ from modules.config import (
 from modules.db import init_db
 from modules.storage import save_resume, get_saved_resumes, get_resume_path, get_resume_text_from_db, sync_resumes_from_disk
 from modules.document_utils import extract_text_from_uploaded_pdf, extract_text_from_pdf
-from modules.analyzer import analyze_resume_vs_jd, extract_company_and_role, extract_match_score
+from modules.analyzer import (
+    analyze_resume_vs_jd,
+    extract_company_and_role,
+    extract_match_score,
+    extract_salary_range,
+)
 from modules.tracker import save_application, get_all_applications, delete_application
 
 # --- Init ---
@@ -195,15 +200,20 @@ with tab_analyze:
                     # === Step 4: Save to tracker ===
                     try:
                         extracted_score = extract_match_score(analysis_result)
+                        extracted_salary_range = extract_salary_range(jd_text)
                         save_application(
                             role=role_name,
                             company=company_name,
                             jd_text=jd_text,
                             resume_id=resume_id,  # Can be None if save failed, FK allows NULL
                             match_score=extracted_score,
+                            salary_range=extracted_salary_range,
                             analysis_result=analysis_result,
                         )
-                        st.info(f"💾 Disimpan ke Tracker: **{company_name} — {role_name}** dengan skor **{extracted_score}%**")
+                        st.info(
+                            f"💾 Disimpan ke Tracker: **{company_name} — {role_name}** "
+                            f"dengan skor **{extracted_score}%** dan salary range **{extracted_salary_range}**"
+                        )
                     except Exception as e:
                         st.error(f"Gagal menyimpan ke tracker: {e}")
                     
@@ -227,7 +237,8 @@ with tab_tracker:
                 "Perusahaan": a["company"],
                 "Posisi": a["role"],
                 "Resume Digunakan": a["resume_filename"] or "Terhapus/Unknown",
-                "Skor": a["Match_score"] if a["Match_score"] else "-"
+                "Skor": a["Match_score"] if a["Match_score"] else "-",
+                "Salary Range": a["salary_range"] or "-"
             })
             
         # Make a nice dataframe directly from list of dicts (Supported by streamlit > 1.25)

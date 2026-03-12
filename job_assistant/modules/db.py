@@ -38,11 +38,18 @@ def init_db():
             jd_text TEXT NOT NULL,
             resume_id INTEGER,
             Match_score INTEGER,
+            salary_range TEXT,
             analysis_result TEXT NOT NULL,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY (resume_id) REFERENCES resumes (id)
         )
     """)
+
+    # Lightweight migration for existing database files.
+    cursor.execute("PRAGMA table_info(applications)")
+    columns = [row[1] for row in cursor.fetchall()]
+    if "salary_range" not in columns:
+        cursor.execute("ALTER TABLE applications ADD COLUMN salary_range TEXT")
     
     conn.commit()
     conn.close()

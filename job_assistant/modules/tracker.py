@@ -3,7 +3,15 @@ tracker.py — Manage application tracking histories in the database.
 """
 from modules.db import get_db_connection
 
-def save_application(role: str, company: str, jd_text: str, resume_id: int, match_score: int, analysis_result: str) -> int:
+def save_application(
+    role: str,
+    company: str,
+    jd_text: str,
+    resume_id: int,
+    match_score: int,
+    salary_range: str,
+    analysis_result: str,
+) -> int:
     """
     Save an application tracking record.
     Returns:
@@ -13,9 +21,11 @@ def save_application(role: str, company: str, jd_text: str, resume_id: int, matc
     cursor = conn.cursor()
     
     cursor.execute("""
-        INSERT INTO applications (role, company, jd_text, resume_id, Match_score, analysis_result)
-        VALUES (?, ?, ?, ?, ?, ?)
-    """, (role, company, jd_text, resume_id, match_score, analysis_result))
+        INSERT INTO applications (
+            role, company, jd_text, resume_id, Match_score, salary_range, analysis_result
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+    """, (role, company, jd_text, resume_id, match_score, salary_range, analysis_result))
     
     app_id = cursor.lastrowid
     conn.commit()
@@ -34,7 +44,7 @@ def get_all_applications() -> list[dict]:
     
     query = """
         SELECT 
-            a.id, a.role, a.company, a.Match_score, a.created_at, 
+            a.id, a.role, a.company, a.Match_score, a.salary_range, a.created_at, 
             r.filename as resume_filename
         FROM applications a
         LEFT JOIN resumes r ON a.resume_id = r.id
