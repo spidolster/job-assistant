@@ -70,3 +70,11 @@
 - [x] Audit smoke test script (`test_extract.py`) dan hilangkan hardcoded credential
 - [x] Samakan dokumentasi README dengan implementasi extractor saat ini (DeepSeek)
 - [x] Jalankan validasi cepat (`compileall`, smoke test extraction)
+
+
+### 12. Test Strategy Discussion (pre-implementation)
+- [x] Revert commit test suite yang dibuat tanpa persetujuan user
+- [x] Diskusikan best practice desain test (unit/integration/e2e + scope tiap layer)
+- [ ] Sepakati prioritas test pertama sebelum implementasi
+
+- [x] Dokumentasikan draft strategi testing terpusat di `docs/testing_strategy.md`

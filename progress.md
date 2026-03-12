@@ -8,7 +8,7 @@
 
 > One sentence. Where are we RIGHT NOW?
 
-**Status**: Audit health check selesai — smoke test extractor sudah valid, tidak ada hardcoded API key, dan README sudah selaras dengan implementasi extractor saat ini.
+**Status**: Diskusi best practice testing sudah dirumuskan; strategi test terpusat dan scalable didokumentasikan sebelum implementasi test baru.
 
 ---
 
@@ -42,6 +42,9 @@
 > What was done last time? AI writes this at end of each session.
 
 **Date**: 2026-03-12
+- Revert commit test suite otomatis karena user meminta diskusi strategi testing dulu sebelum ada perubahan kode baru.
+- Rumuskan draft best practice testing yang menekankan test terpusat di modul/folder terpisah (`tests/`) agar tidak berceceran.
+- Dokumentasikan blueprint sederhana tapi efektif untuk scaling di `docs/testing_strategy.md` (unit/integration/e2e, risk-based priority, mocking policy).
 - Audit project end-to-end untuk error/inkonsistensi dan kecocokan dokumentasi.
 - Perbaiki `test_extract.py`: hapus hardcoded API key, perbaiki signature function call agar sesuai implementasi terbaru, dan tambah warning saat env key belum tersedia.
 - Koreksi README agar fitur extractor konsisten (DeepSeek-only untuk auto-extract company/role).
@@ -74,7 +77,7 @@
 1. Masukkan API Key (OpenAI/DeepSeek/Claude/Gemini) ke `.env`
 2. Jalankan Streamlit dan lakukan full flow test dengan resume PDF asli + JD nyata
 3. Evaluasi kualitas output LLM dan akurasi ekstraksi company/role pada beberapa format JD
-4. Tambahkan test otomatis (unit test) untuk `extract_match_score` dan `extract_salary_range`
+4. Sepakati prioritas test implementasi pertama dari blueprint `docs/testing_strategy.md`
 
 ---
 
@@ -94,4 +97,4 @@
 
 ---
 
-*Last updated: 2026-03-12*
+*Last updated: 2026-03-12 (session update: testing strategy discussion draft documented)*
