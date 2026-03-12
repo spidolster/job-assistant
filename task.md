@@ -9,16 +9,50 @@
 
 ---
 
-## Current Epic: Phase 2.1 — Auto-Extract Company & Role
+## Current Epic: Phase 2.2 — Fix JD Parser Model & Resume Upload/Tracker
 
-### 1. Extractor Function
-- [x] In `modules/analyzer.py`, create `extract_company_and_role(raw_text: str, api_key: str) -> dict`
-- [x] Craft a prompt instructing Gemini 2.0 Flash Lite to extract the company name and job title from the text and return valid JSON (e.g., `{"company": "...", "role": "..."}`).
-- [x] Use the provided Gemini API key specifically for this function.
+### 1. Config — Pindah Auto-Extract Key ke `.env`
+- [x] Tambah `get_gemini_extract_key()` di `config.py`
+- [x] Hapus hardcode API key dari `app.py`, ganti pakai fungsi baru
+- [x] Tambah `GEMINI_EXTRACT_API_KEY` di `.env`
 
-### 2. UI Refactor
-- [x] In `app.py`, remove the `company_name` and `role_name` `st.text_input` fields.
-- [x] Update the JD text area to indicate the user should paste the *entire* raw text (Company, Title, and Description).
-- [x] When the Analysis button is clicked, call `extract_company_and_role` first.
-- [x] Display the extracted company and role to the user (e.g., using `st.info`).
-- [x] Use the extracted data when calling `save_application` for the tracker.
+### 2. Storage — Handle duplikat resume
+- [x] Ubah `save_resume()` agar handle duplikat filename (return ID existing)
+- [x] Tambah `sync_resumes_from_disk()` untuk register file PDF yang belum ada di DB
+
+### 3. App — Refactor resume upload flow
+- [x] Perbaiki flow: resume auto-save saat analisis, hindari duplikat
+- [x] Pastikan `resume_id` selalu terisi saat save ke tracker
+- [x] Pastikan `resume_text` selalu terisi dari upload baru atau DB
+- [x] Hapus tombol "Simpan Resume" terpisah, resume otomatis tersimpan saat analisis
+- [x] Panggil `sync_resumes_from_disk()` saat startup
+
+### 4. Switch JD Parser to DeepSeek
+- [x] Ubah `extract_company_and_role` dari Gemini ke DeepSeek
+- [x] Update `app.py` (hapus Gemini extract key dependency)
+- [x] Test CLI extraction → PT Tokopedia (GoTo Group) / Senior Data Analyst ✅
+
+### 5. QA Testing
+- [x] App load & resume dropdown
+- [x] Sidebar settings (provider, model, key)
+- [x] Tab navigation
+- [x] Full analysis flow (resume + JD → result)
+- [x] Auto-extract company & role
+- [x] Tracker saves entry
+- [x] Fix Streamlit deprecation warning (`use_container_width` → `width`)
+
+### 6. Phase 2.3 — Fix Match Score Saving
+- [x] Tambah `extract_match_score(text)` dengan RegExp di `analyzer.py`
+- [x] Implementasi passthrough score real ke tracker di `app.py`
+- [x] Verifikasi muncul di tabel My Tracker
+
+### 7. Documentation & Setup
+- [x] Buat file `README.md` tentang cara setup dan menjalankan project
+- [x] Install dependensi (`requirements.txt`) agar `streamlit` bisa dijalankan
+
+### 8. Phase 2.4 — Python 3.14 Compatibility Fix
+- [x] Upgrade `openai` (v1.14.x incompatible with httpx di Python 3.14 karena keyword `proxies`)
+- [x] Test re-run server Streamlit
+
+### 9. Version Control
+- [/] Push semua perubahan ke GitHub

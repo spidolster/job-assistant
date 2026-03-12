@@ -69,6 +69,18 @@ def get_model() -> str:
     load_config()
     return os.getenv("AI_MODEL", "")
 
+def get_gemini_extract_key() -> str:
+    """Get the dedicated Gemini API key for JD auto-extraction.
+
+    Reads GEMINI_EXTRACT_API_KEY from .env.
+    Falls back to GEMINI_API_KEY if the dedicated key is not set.
+    """
+    load_config()
+    key = os.getenv("GEMINI_EXTRACT_API_KEY", "")
+    if not key:
+        key = os.getenv("GEMINI_API_KEY", "")
+    return key
+
 # Available models per provider
 AVAILABLE_MODELS = {
     "openai": [

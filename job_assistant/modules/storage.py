@@ -6,7 +6,7 @@ import os
 from pathlib import Path
 from datetime import datetime
 from modules.db import get_db_connection
-from modules.document_utils import extract_text_from_uploaded_pdf
+from modules.document_utils import extract_text_from_uploaded_pdf, extract_text_from_pdf
 
 _RESUMES_DIR = Path(__file__).resolve().parent.parent / "data" / "resumes"
 
@@ -42,7 +42,7 @@ def save_resume(uploaded_file, custom_name: str = "") -> dict:
     text_content = extract_text_from_uploaded_pdf(uploaded_file)
     uploaded_file.seek(0)
     
-    # Insert record into database
+    # Insert record into database (handle duplicate filenames gracefully)
     conn = get_db_connection()
     cursor = conn.cursor()
     
@@ -54,9 +54,11 @@ def save_resume(uploaded_file, custom_name: str = "") -> dict:
         resume_id = cursor.lastrowid
         conn.commit()
     except Exception as e:
-        print(f"Error saving to db: {e}")
-        # If DB fails for uniqueness, attempt update (or just ignore for simplicity in MVP)
-        resume_id = None
+        # Likely UNIQUE constraint on filename — look up the existing record
+        print(f"Resume already exists in DB (expected for re-uploads): {e}")
+        cursor.execute("SELECT id FROM resumes WHERE filename = ?", (filename,))
+        row = cursor.fetchone()
+        resume_id = row["id"] if row else None
     finally:
         conn.close()
         
@@ -90,6 +92,39 @@ def get_resume_text_from_db(resume_id: int) -> str:
     row = cursor.fetchone()
     conn.close()
     return row["content_text"] if row else ""
+
+def sync_resumes_from_disk():
+    """Scan the resumes directory and register any PDFs not yet in SQLite.
+
+    Called once at app startup so that files uploaded in previous sessions
+    (or manually placed) show up in the dropdown.
+    """
+    _ensure_resumes_dir()
+    
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    # Get all filenames already in the DB
+    cursor.execute("SELECT filename FROM resumes")
+    known_files = {row["filename"] for row in cursor.fetchall()}
+    
+    # Scan disk for .pdf files
+    for pdf_file in _RESUMES_DIR.glob("*.pdf"):
+        if pdf_file.name not in known_files:
+            # Extract text and register
+            text_content = extract_text_from_pdf(str(pdf_file))
+            try:
+                cursor.execute(
+                    "INSERT INTO resumes (filename, content_text) VALUES (?, ?)",
+                    (pdf_file.name, text_content),
+                )
+                print(f"[sync] Registered existing resume: {pdf_file.name}")
+            except Exception as e:
+                print(f"[sync] Skipped {pdf_file.name}: {e}")
+    
+    conn.commit()
+    conn.close()
+
 
 def delete_resume(resume_id: int, filename: str) -> bool:
     """Delete a saved resume file and DB record."""

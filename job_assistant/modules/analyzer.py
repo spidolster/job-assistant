@@ -142,18 +142,25 @@ Buatlah analisis komprehensif dalam bahasa Indonesia dengan struktur berikut:
 4. **Rekomendasi**: Saran spesifik untuk memperbaiki resume atau hal-hal yang perlu disiapkan untuk wawancara.
 """
 
-def extract_company_and_role(raw_jd_text: str, api_key: str) -> dict:
+def extract_company_and_role(raw_jd_text: str) -> dict:
     """
-    Uses Gemini 2.0 Flash Lite to extract the Company Name and Job Role from a raw text payload.
+    Uses DeepSeek to extract the Company Name and Job Role from a raw text payload.
+    Always uses DeepSeek (deepseek-chat) regardless of the provider selected in sidebar.
+    Reads DEEPSEEK_API_KEY from environment / .env.
     Returns:
         dict: {"company": "Company Name", "role": "Job Role"}
     """
     from openai import OpenAI
     import json
     
+    api_key = os.getenv("DEEPSEEK_API_KEY", "")
+    if not api_key:
+        print("DEEPSEEK_API_KEY not set, cannot extract company/role.")
+        return {"company": "Unknown Company", "role": "Unknown Role"}
+    
     client = OpenAI(
         api_key=api_key,
-        base_url="https://generativelanguage.googleapis.com/v1beta/openai/"
+        base_url="https://api.deepseek.com"
     )
     
     prompt = f"""
@@ -168,11 +175,11 @@ Raw Text:
 """
     try:
         response = client.chat.completions.create(
-            model="gemini-2.0-flash-lite",
+            model="deepseek-chat",
             messages=[
                 {"role": "user", "content": prompt}
             ],
-            temperature=0.1 # Low temp for deterministic JSON extraction
+            temperature=0.1  # Low temp for deterministic JSON extraction
         )
         
         result_text = response.choices[0].message.content.strip()
@@ -194,3 +201,34 @@ Raw Text:
     except Exception as e:
         print(f"Extraction error: {e}")
         return {"company": "Unknown Company", "role": "Unknown Role"}
+
+def extract_match_score(analysis_text: str) -> int:
+    """
+    Extracts the match score percentage from the LLM analysis text using Regex.
+    Defaults to 0 if not found.
+    """
+    import re
+    if not analysis_text:
+        return 0
+        
+    # Look for "Match Score" or similar context followed by a number and optionally a %
+    match = re.search(r'(?i)match\s*score.*?(\d+)\s*%', analysis_text)
+    if match:
+        return int(match.group(1))
+        
+    match = re.search(r'(?i)kecocokan.*?(\d+)\s*%', analysis_text)
+    if match:
+        return int(match.group(1))
+        
+    match = re.search(r'(?i)score.*?:\s*(\d+)', analysis_text)
+    if match:
+        return int(match.group(1))
+        
+    # Fallback: find the first percentage in the text
+    match = re.search(r'(\d+)\s*%', analysis_text)
+    if match:
+        return int(match.group(1))
+        
+    return 0
+
+

@@ -8,7 +8,7 @@
 
 > One sentence. Where are we RIGHT NOW?
 
-**Status**: Phase 2.1 selesai! Fitur auto-extract Company dan Role menggunakan Gemini 2.0 Flash Lite sudah tersambung dan verified di UI.
+**Status**: Bug match score pada tracker (skor selalu 0) sudah diperbaiki. Ekstraksi otomatis dari hasil analisis menggunakan RegEx telah diimplementasikan (Phase 2.3).
 
 ---
 
@@ -16,7 +16,7 @@
 
 > What is being worked on this session?
 
-- **Task**: Coding Phase 2.1 Auto-Extract Feature
+- **Task**: Phase 2.4 Fix Python 3.14 Compatibility (openai proxies bug)
 - **Started**: 2026-03-12
 - **Target done**: 2026-03-12
 
@@ -30,6 +30,7 @@
 - [x] Phase 1.5: UX Polish — Persistent Keys, Model Select, Resume History
 - [x] Phase 2.0: Feature-rich — Tracker Dashboard (Streamlit + SQLite)
 - [x] Phase 2.1: Auto-Extract — Single JD input, Gemini Flash Lite extraction
+- [x] Phase 2.2: Bugfix — Fix resume upload/tracker flow, isolate extract key
 - [ ] Phase 3: Separated — FastAPI backend + React frontend
 - [ ] Phase 4: Platform — Analytics, AI pipeline, background jobs
 
@@ -40,14 +41,21 @@
 > What was done last time? AI writes this at end of each session.
 
 **Date**: 2026-03-12
-**Done**:
-- Phase 2: Integrasi SQLite, tab layout Tracker, dan history lamaran otomatis.
-- Phase 2.1: Refactor UI JD menjadi satu *raw input* saja.
-- Menambahkan fungsi pemisah otomatis (auto-extract) menggunakan Gemini 2.0 Flash Lite yang mem-parsing nama Perusahaan dan Posisi dalam output JSON.
+- Phase 2.4: Upgrade `openai` package dari `1.14.2` ke `1.50.0+` untuk memperbaiki error `__init__() got an unexpected keyword argument 'proxies'` di Python 3.14.
+- Phase 2.3: Fix bug match score selalu 0 di tracker, ekstrak nilai dari LLM output menggunakan Regex
+- Phase 2.3: Fix `requirements.txt` (upgrade streamlit & hapus pandas) agar bisa di-install tanpa error build numpy di Windows, lalu jalankan instalasi.
+- Tambah file README.md untuk panduan instalasi dan penggunaan aplikasi
+- Phase 2.2: Fix resume upload → tracker flow (3 bugs diperbaiki)
+- Switch JD parser dari Gemini (key leaked) ke DeepSeek (`deepseek-chat`)
+- `sync_resumes_from_disk()` — auto-register existing PDFs ke SQLite saat startup
+- Handle duplikat resume di `storage.py` (return existing ID instead of None)
+- Refactor `app.py`: hapus tombol simpan terpisah, auto-save saat analisis, tracker selalu menyimpan
+- QA Testing 8/8 passed: load, dropdown, JD input, sidebar, tabs, analysis, extraction, tracker
+- Fix Streamlit deprecation warning (`use_container_width` → `width`)
 
 **Left unfinished**:
-- Lakukan test integrasi / real use-case oleh User (kemungkinan Gemini limit 429).
-- Eksplorasi Phase 3 (FastAPI/React).
+- Test upload resume baru (belum ditest, hanya saved resume yang ditest)
+- Eksplorasi Phase 3 (FastAPI/React)
 
 ---
 

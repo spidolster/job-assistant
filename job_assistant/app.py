@@ -12,16 +12,14 @@ from modules.config import (
     AVAILABLE_MODELS,
 )
 from modules.db import init_db
-from modules.storage import save_resume, get_saved_resumes, get_resume_path, get_resume_text_from_db
+from modules.storage import save_resume, get_saved_resumes, get_resume_path, get_resume_text_from_db, sync_resumes_from_disk
 from modules.document_utils import extract_text_from_uploaded_pdf, extract_text_from_pdf
-from modules.analyzer import analyze_resume_vs_jd, extract_company_and_role
+from modules.analyzer import analyze_resume_vs_jd, extract_company_and_role, extract_match_score
 from modules.tracker import save_application, get_all_applications, delete_application
-
-# Defined by user for auto-extraction
-GEMINI_AUTO_EXTRACT_KEY = "AIzaSyDCvl6oKHt9IPs9JN6R0pGw96bbfGpTTeU"
 
 # --- Init ---
 init_db()
+sync_resumes_from_disk()  # Register any PDFs on disk not yet in SQLite
 load_config()
 
 st.set_page_config(page_title="Job Assistant", page_icon="🕵️", layout="wide")
@@ -106,31 +104,18 @@ with tab_analyze:
         resume_options = ["📤 Upload Resume Baru"] + list(resume_map.keys())
         selected_resume_option = st.selectbox("Pilih Resume", resume_options)
 
-    resume_text = None
-    uploaded_file = None
-
-    if selected_resume_option == "📤 Upload Resume Baru":
-        uploaded_file = st.file_uploader("Unggah file Resume (.pdf)", type=["pdf"])
-
-        if uploaded_file:
-            # Offer to save
-            save_name = st.text_input(
-                "Nama file untuk disimpan (opsional)",
-                value=uploaded_file.name.replace(".pdf", ""),
-                help="Kosongkan untuk nama otomatis dengan timestamp.",
-            )
-            if st.button("💾 Simpan Resume", key="save_resume"):
-                saved_filename = save_resume(uploaded_file, custom_name=save_name)
-                st.success(f"Resume disimpan sebagai: **{saved_filename}**")
-                uploaded_file.seek(0)  # reset pointer after saving
-                st.rerun()
-    else:
-        # Using a saved resume
-        resume_path = get_resume_path(selected_resume_option)
-        if os.path.exists(resume_path):
-            st.info(f"Menggunakan: **{selected_resume_option}**")
+        uploaded_file = None
+        if selected_resume_option == "📤 Upload Resume Baru":
+            uploaded_file = st.file_uploader("Unggah file Resume (.pdf)", type=["pdf"])
+            if uploaded_file:
+                st.info(f"📎 File siap: **{uploaded_file.name}** — akan otomatis tersimpan saat Analisis.")
         else:
-            st.error(f"File tidak ditemukan: {selected_resume_option}")
+            # Using a saved resume
+            resume_path = get_resume_path(selected_resume_option)
+            if os.path.exists(resume_path):
+                st.info(f"Menggunakan: **{selected_resume_option}**")
+            else:
+                st.error(f"File tidak ditemukan: {selected_resume_option}")
 
     # --- JD Input ---
     with col2:
@@ -139,7 +124,7 @@ with tab_analyze:
         jd_text = st.text_area("Teks Lengkap Job Description", height=300)
     
     # --- Analyze ---
-    if st.button("🚀 Analisis Kecocokan", use_container_width=True, type="primary"):
+    if st.button("🚀 Analisis Kecocokan", width="stretch", type="primary"):
         # Validate API Key
         api_key = get_api_key(selected_provider)
         if not api_key:
@@ -150,29 +135,34 @@ with tab_analyze:
             resume_text = None
             resume_id = None
             
-            # Extract/Retrieve resume text
+            # === Step 1: Prepare resume (text + ID) ===
             with st.spinner("Menyiapkan resume..."):
                 if selected_resume_option == "📤 Upload Resume Baru":
                     if not uploaded_file:
                         st.error("❌ Silakan unggah resume terlebih dahulu.")
                         st.stop()
                     
-                    # Auto-save the newly uploaded resume to history
-                    with st.spinner("Menyimpan resume ke database..."):
-                        save_result = save_resume(uploaded_file, custom_name="")
-                        resume_id = save_result.get("id")
-                        
-                    # Still need to extract the text right now for the current analysis session
-                    # because save_result doesn't return the text
+                    # Extract text first (before save_resume moves the pointer)
+                    uploaded_file.seek(0)
                     resume_text = extract_text_from_uploaded_pdf(uploaded_file)
+                    
+                    # Auto-save uploaded resume to DB + filesystem
+                    uploaded_file.seek(0)
+                    save_result = save_resume(uploaded_file, custom_name="")
+                    resume_id = save_result.get("id")
+                    
+                    if resume_id:
+                        st.success(f"📁 Resume disimpan: **{save_result.get('filename')}**")
+                    else:
+                        st.warning("⚠️ Gagal menyimpan resume ke database, tapi analisis tetap berjalan.")
                 else:
-                    # Retrieve the text directly from the SQLite database
+                    # Retrieve from existing saved resume
                     db_record = resume_map.get(selected_resume_option)
                     if db_record:
                         resume_id = db_record["id"]
                         resume_text = get_resume_text_from_db(resume_id)
                         
-                        # Fallback text extraction just in case DB text is empty for some reason
+                        # Fallback: extract from file if DB text is empty
                         if not resume_text:
                             resume_path = get_resume_path(selected_resume_option)
                             resume_text = extract_text_from_pdf(resume_path)
@@ -180,7 +170,7 @@ with tab_analyze:
             if not resume_text:
                 st.error("❌ Gagal membaca teks resume. Pastikan file tidak diproteksi atau berupa gambar.")
             else:
-                # Analyze
+                # === Step 2: Analyze resume vs JD ===
                 with st.spinner(f"Menganalisis dengan {selected_provider.title()} ({selected_model})..."):
                     analysis_result = analyze_resume_vs_jd(
                         resume_text, jd_text,
@@ -195,26 +185,27 @@ with tab_analyze:
                 else:
                     st.success("✅ Analisis Selesai!")
                     
-                    # Auto-extract company and role
-                    with st.spinner("Mengekstrak info loker dengan Gemini..."):
-                        extracted_info = extract_company_and_role(jd_text, GEMINI_AUTO_EXTRACT_KEY)
+                    # === Step 3: Auto-extract company & role (always DeepSeek) ===
+                    with st.spinner("Mengekstrak info perusahaan & posisi dengan DeepSeek..."):
+                        extracted_info = extract_company_and_role(jd_text)
                         company_name = extracted_info.get("company", "Unknown Company")
                         role_name = extracted_info.get("role", "Unknown Role")
+                    st.info(f"🏢 **{company_name}** — 💼 **{role_name}**")
                     
-                    # Save to tracker
-                    if resume_id:
-                        try:
-                            save_application(
-                                role=role_name,
-                                company=company_name,
-                                jd_text=jd_text,
-                                resume_id=resume_id,
-                                match_score=0, # Placeholder until we extract this reliably
-                                analysis_result=analysis_result
-                            )
-                            st.info(f"💾 Disimpan ke Tracker: **{company_name} - {role_name}**")
-                        except Exception as e:
-                            st.error(f"Gagal menyimpan ke tracker: {e}")
+                    # === Step 4: Save to tracker ===
+                    try:
+                        extracted_score = extract_match_score(analysis_result)
+                        save_application(
+                            role=role_name,
+                            company=company_name,
+                            jd_text=jd_text,
+                            resume_id=resume_id,  # Can be None if save failed, FK allows NULL
+                            match_score=extracted_score,
+                            analysis_result=analysis_result,
+                        )
+                        st.info(f"💾 Disimpan ke Tracker: **{company_name} — {role_name}** dengan skor **{extracted_score}%**")
+                    except Exception as e:
+                        st.error(f"Gagal menyimpan ke tracker: {e}")
                     
                     st.divider()
                     st.subheader("📊 Hasil Analisis")
@@ -225,10 +216,8 @@ with tab_tracker:
     apps = get_all_applications()
     
     if not apps:
-        st.info("Belum ada history lamaran. Mulai analisis di tab sebelah dan isi Nama Perusahaan & Posisi untuk menyimpannya ke Tracker.")
+        st.info("Belum ada history lamaran. Mulai analisis di tab sebelah untuk menyimpannya ke Tracker.")
     else:
-        import pandas as pd
-        
         # Format for display
         display_data = []
         for a in apps:
@@ -241,16 +230,12 @@ with tab_tracker:
                 "Skor": a["Match_score"] if a["Match_score"] else "-"
             })
             
-        df = pd.DataFrame(display_data)
-        
-        # Make a nice dataframe
+        # Make a nice dataframe directly from list of dicts (Supported by streamlit > 1.25)
         st.dataframe(
-            df,
+            display_data,
             column_config={
                 "ID": st.column_config.NumberColumn("ID", format="%d"),
-                "Tanggal": st.column_config.DatetimeColumn("Tanggal", format="D MMM YYYY, HH:mm")
             },
             hide_index=True,
-            use_container_width=True
+            use_container_width=True,
         )
-
