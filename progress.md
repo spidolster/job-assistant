@@ -8,7 +8,7 @@
 
 > One sentence. Where are we RIGHT NOW?
 
-**Status**: Audit health check selesai — smoke test extractor sudah valid, tidak ada hardcoded API key, dan README sudah selaras dengan implementasi extractor saat ini.
+**Status**: Coverage test urgent sudah cukup (parser + tracker/storage); test non-urgent ditahan dulu agar fokus balik ke core task.
 
 ---
 
@@ -42,6 +42,16 @@
 > What was done last time? AI writes this at end of each session.
 
 **Date**: 2026-03-12
+- Revert commit test suite otomatis karena user meminta diskusi strategi testing dulu sebelum ada perubahan kode baru.
+- Sepakati batas eksekusi testing: berhenti setelah area urgent tercakup (parser + tracker/storage), dan tunda test non-urgent agar scope tetap rapi.
+- Implement tahap 2 integration tests di `tests/integration/test_tracker_storage_integration.py` untuk alur storage/tracker berbasis SQLite temporary DB.
+- Tambah skenario integration: duplicate handling `save_resume`, save/read application via tracker, dan migration legacy schema untuk `salary_range`.
+- Jalankan ulang suite `python -m unittest discover -s tests -v` (13 test) dan semua lulus.
+- Sepakati prioritas implementasi test pertama: parser kritikal (`extract_match_score`, `extract_salary_range`) agar eksekusi tetap pelan dan fokus risiko tertinggi.
+- Tambah test unit terpusat di `tests/unit/test_analyzer_parsers.py` untuk parser score/salary (10 test case) + setup package discovery (`tests/__init__.py`, `tests/unit/__init__.py`).
+- Jalankan test suite `python -m unittest discover -s tests -v` dan semua test lulus.
+- Rumuskan draft best practice testing yang menekankan test terpusat di modul/folder terpisah (`tests/`) agar tidak berceceran.
+- Dokumentasikan blueprint sederhana tapi efektif untuk scaling di `docs/testing_strategy.md` (unit/integration/e2e, risk-based priority, mocking policy).
 - Audit project end-to-end untuk error/inkonsistensi dan kecocokan dokumentasi.
 - Perbaiki `test_extract.py`: hapus hardcoded API key, perbaiki signature function call agar sesuai implementasi terbaru, dan tambah warning saat env key belum tersedia.
 - Koreksi README agar fitur extractor konsisten (DeepSeek-only untuk auto-extract company/role).
@@ -74,7 +84,7 @@
 1. Masukkan API Key (OpenAI/DeepSeek/Claude/Gemini) ke `.env`
 2. Jalankan Streamlit dan lakukan full flow test dengan resume PDF asli + JD nyata
 3. Evaluasi kualitas output LLM dan akurasi ekstraksi company/role pada beberapa format JD
-4. Tambahkan test otomatis (unit test) untuk `extract_match_score` dan `extract_salary_range`
+4. Pause penambahan test non-urgent; kembali ke core task implementasi fitur utama
 
 ---
 
@@ -94,4 +104,4 @@
 
 ---
 
-*Last updated: 2026-03-12*
+*Last updated: 2026-03-12 (session update: urgent-test boundary agreed, shift back to core task)*

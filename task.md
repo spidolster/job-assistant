@@ -70,3 +70,16 @@
 - [x] Audit smoke test script (`test_extract.py`) dan hilangkan hardcoded credential
 - [x] Samakan dokumentasi README dengan implementasi extractor saat ini (DeepSeek)
 - [x] Jalankan validasi cepat (`compileall`, smoke test extraction)
+
+
+### 12. Test Strategy Discussion (pre-implementation)
+- [x] Revert commit test suite yang dibuat tanpa persetujuan user
+- [x] Diskusikan best practice desain test (unit/integration/e2e + scope tiap layer)
+- [x] Sepakati prioritas test pertama sebelum implementasi (parser critical)
+
+- [x] Dokumentasikan draft strategi testing terpusat di `docs/testing_strategy.md`
+
+- [x] Implement tahap 1: unit test parser (`extract_match_score`, `extract_salary_range`)
+- [x] Implement tahap 2: integration test tracker/storage (SQLite temp DB)
+
+- [x] Sepakati batas: test non-urgent ditunda, kembali ke core task
