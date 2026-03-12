@@ -33,6 +33,10 @@ class TestTrackerStorageIntegration(unittest.TestCase):
     """Validate storage + tracker behavior over a temporary SQLite database."""
 
     def setUp(self) -> None:
+        self._original_db_dir = db.DB_DIR
+        self._original_db_path = db.DB_PATH
+        self._original_resumes_dir = storage._RESUMES_DIR
+
         self.temp_dir = tempfile.TemporaryDirectory()
         self.base_path = Path(self.temp_dir.name)
 
@@ -43,6 +47,9 @@ class TestTrackerStorageIntegration(unittest.TestCase):
         db.init_db()
 
     def tearDown(self) -> None:
+        db.DB_DIR = self._original_db_dir
+        db.DB_PATH = self._original_db_path
+        storage._RESUMES_DIR = self._original_resumes_dir
         self.temp_dir.cleanup()
 
     def test_save_resume_duplicate_returns_existing_id(self) -> None:
@@ -53,7 +60,8 @@ class TestTrackerStorageIntegration(unittest.TestCase):
 
         uploaded.seek(0)
         with patch("modules.storage.extract_text_from_uploaded_pdf", return_value="resume text"):
-            second = storage.save_resume(uploaded, custom_name="ari_resume")
+            with patch("builtins.print"):
+                second = storage.save_resume(uploaded, custom_name="ari_resume")
 
         self.assertIsNotNone(first["id"])
         self.assertEqual(first["id"], second["id"])

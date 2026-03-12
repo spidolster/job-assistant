@@ -83,3 +83,5 @@
 - [x] Implement tahap 2: integration test tracker/storage (SQLite temp DB)
 
 - [x] Sepakati batas: test non-urgent ditunda, kembali ke core task
+
+- [x] Hardening integration tests: restore patched global paths (`DB_PATH`, `DB_DIR`, `_RESUMES_DIR`) di tearDown untuk mencegah flaky side effects

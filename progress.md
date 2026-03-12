@@ -8,7 +8,7 @@
 
 > One sentence. Where are we RIGHT NOW?
 
-**Status**: Coverage test urgent sudah cukup (parser + tracker/storage); test non-urgent ditahan dulu agar fokus balik ke core task.
+**Status**: PR blocker untuk merge ditangani dengan hardening integration test (isolasi global path restore); suite tetap hijau.
 
 ---
 
@@ -43,6 +43,8 @@
 
 **Date**: 2026-03-12
 - Revert commit test suite otomatis karena user meminta diskusi strategi testing dulu sebelum ada perubahan kode baru.
+- Tindak lanjuti blocker merge dengan hardening integration test: restore global path (`db.DB_DIR`, `db.DB_PATH`, `storage._RESUMES_DIR`) di tearDown agar tidak meninggalkan side effect lintas test.
+- Rapikan log test duplicate resume dengan patch `print` agar output CI lebih bersih.
 - Sepakati batas eksekusi testing: berhenti setelah area urgent tercakup (parser + tracker/storage), dan tunda test non-urgent agar scope tetap rapi.
 - Implement tahap 2 integration tests di `tests/integration/test_tracker_storage_integration.py` untuk alur storage/tracker berbasis SQLite temporary DB.
 - Tambah skenario integration: duplicate handling `save_resume`, save/read application via tracker, dan migration legacy schema untuk `salary_range`.
@@ -104,4 +106,4 @@
 
 ---
 
-*Last updated: 2026-03-12 (session update: urgent-test boundary agreed, shift back to core task)*
+*Last updated: 2026-03-12 (session update: merge blocker handled via test hardening)*
