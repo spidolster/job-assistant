@@ -1,6 +1,6 @@
 # task.md
 > Short-term technical checklist for the current active task.
-> 
+>
 > **How to use:**
 > - Break down the "Active Task" from `progress.md` into actionable technical steps.
 > - Mark with `[x]` when completed.
@@ -9,83 +9,36 @@
 
 ---
 
-## Current Epic: Phase 2.2 — Fix JD Parser Model & Resume Upload/Tracker
+## Current Epic: Phase 3 — Separated (FastAPI backend + React frontend)
 
-### 1. Config — Pindah Auto-Extract Key ke `.env`
-- [x] Tambah `get_gemini_extract_key()` di `config.py`
-- [x] Hapus hardcode API key dari `app.py`, ganti pakai fungsi baru
-- [x] Tambah `GEMINI_EXTRACT_API_KEY` di `.env`
+### 1. Backend API Foundation (FastAPI)
+- [x] Buat entrypoint FastAPI `job_assistant/backend/main.py`
+- [x] Tambahkan startup hook (`init_db`, `sync_resumes_from_disk`, `load_config`)
+- [x] Tambahkan endpoint dasar: `/health`, `/providers`, `/resumes`, `/tracker`
+- [x] Tambahkan endpoint upload resume (`/resumes/upload`) dan analisis (`/analyze`)
 
-### 2. Storage — Handle duplikat resume
-- [x] Ubah `save_resume()` agar handle duplikat filename (return ID existing)
-- [x] Tambah `sync_resumes_from_disk()` untuk register file PDF yang belum ada di DB
+### 2. API Schema & Validation
+- [x] Definisikan request/response schema Pydantic untuk endpoint analisis
+- [x] Validasi error handling: API key missing, resume kosong, API error upstream
 
-### 3. App — Refactor resume upload flow
-- [x] Perbaiki flow: resume auto-save saat analisis, hindari duplikat
-- [x] Pastikan `resume_id` selalu terisi saat save ke tracker
-- [x] Pastikan `resume_text` selalu terisi dari upload baru atau DB
-- [x] Hapus tombol "Simpan Resume" terpisah, resume otomatis tersimpan saat analisis
-- [x] Panggil `sync_resumes_from_disk()` saat startup
+### 3. Frontend Foundation (React + Vite)
+- [x] Inisialisasi app frontend pada folder `frontend/`
+- [x] Implement UI dasar: upload/select resume, form JD, hasil analisis, tracker table
+- [x] Integrasikan fetch API ke backend FastAPI
 
-### 4. Switch JD Parser to DeepSeek
-- [x] Ubah `extract_company_and_role` dari Gemini ke DeepSeek
-- [x] Update `app.py` (hapus Gemini extract key dependency)
-- [x] Test CLI extraction → PT Tokopedia (GoTo Group) / Senior Data Analyst ✅
+### 4. Tooling & Dependencies
+- [x] Tambahkan dependency backend FastAPI ke `requirements.txt`
+- [x] Tambahkan dependency frontend React/Vite pada `frontend/package.json`
 
-### 5. QA Testing
-- [x] App load & resume dropdown
-- [x] Sidebar settings (provider, model, key)
-- [x] Tab navigation
-- [x] Full analysis flow (resume + JD → result)
-- [x] Auto-extract company & role
-- [x] Tracker saves entry
-- [x] Fix Streamlit deprecation warning (`use_container_width` → `width`)
+### 5. Quality Checks
+- [x] Tambahkan unit test API minimal (`health`, `analyze success`, `analyze missing API key`)
+- [x] Jalankan full test suite Python
+- [x] Build frontend produksi (`npm run build`)
 
-### 6. Phase 2.3 — Fix Match Score Saving
-- [x] Tambah `extract_match_score(text)` dengan RegExp di `analyzer.py`
-- [x] Implementasi passthrough score real ke tracker di `app.py`
-- [x] Verifikasi muncul di tabel My Tracker
+### 6. Documentation
+- [x] Update README untuk cara menjalankan backend FastAPI + frontend React
 
-### 7. Documentation & Setup
-- [x] Buat file `README.md` tentang cara setup dan menjalankan project
-- [x] Install dependensi (`requirements.txt`) agar `streamlit` bisa dijalankan
-
-### 8. Phase 2.4 — Python 3.14 Compatibility Fix
-- [x] Upgrade `openai` (v1.14.x incompatible with httpx di Python 3.14 karena keyword `proxies`)
-- [x] Test re-run server Streamlit
-
-### 9. Version Control
-- [/] Push semua perubahan ke GitHub
-
-
-### 10. Phase 2.5 — Salary Range di Tracker
-- [x] Tambah kolom `salary_range` pada tabel `applications` (+ migration aman untuk DB existing)
-- [x] Implement `extract_salary_range(jd_text)` di analyzer
-- [x] Simpan hasil parse salary range saat save ke tracker
-- [x] Tampilkan kolom "Salary Range" di tab My Tracker
-- [x] Validasi compile + smoke test parsing
-
-
-### 11. Project Health Check — Error & Documentation Consistency
-- [x] Audit smoke test script (`test_extract.py`) dan hilangkan hardcoded credential
-- [x] Samakan dokumentasi README dengan implementasi extractor saat ini (DeepSeek)
-- [x] Jalankan validasi cepat (`compileall`, smoke test extraction)
-- [x] Perbaiki potensi overwrite resume saat re-upload filename sama (custom_name) dan tambah guard test integrasi
-
-
-### 12. Test Strategy Discussion (pre-implementation)
-- [x] Revert commit test suite yang dibuat tanpa persetujuan user
-- [x] Diskusikan best practice desain test (unit/integration/e2e + scope tiap layer)
-- [x] Sepakati prioritas test pertama sebelum implementasi (parser critical)
-
-- [x] Dokumentasikan draft strategi testing terpusat di `docs/testing_strategy.md`
-
-- [x] Implement tahap 1: unit test parser (`extract_match_score`, `extract_salary_range`)
-- [x] Implement tahap 2: integration test tracker/storage (SQLite temp DB)
-
-- [x] Sepakati batas: test non-urgent ditunda, kembali ke core task
-
-- [x] Hardening integration tests: restore patched global paths (`DB_PATH`, `DB_DIR`, `_RESUMES_DIR`) di tearDown untuk mencegah flaky side effects
-- [ ] Sepakati prioritas test pertama sebelum implementasi
-
-- [x] Dokumentasikan draft strategi testing terpusat di `docs/testing_strategy.md`
+### 7. Next Micro-Task
+- [ ] Migrasi auth/config setting dari Streamlit sidebar ke halaman setting frontend
+- [ ] Tambahkan endpoint detail tracker (`GET /tracker/{id}`) + delete action di UI
+- [ ] Siapkan adapter DB agar mudah switch SQLite -> PostgreSQL

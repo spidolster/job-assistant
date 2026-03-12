@@ -44,3 +44,25 @@
 
 ## ⚖️ Lisensi
 Project ini dibuat untuk kebutuhan personal. Gunakan sebijaknya!
+
+
+## 🧱 Phase 3 (FastAPI + React)
+Mulai Phase 3, arsitektur dipisah menjadi backend API dan frontend web.
+
+### Jalankan Backend (FastAPI)
+```bash
+uvicorn job_assistant.backend.main:app --reload --port 8000
+```
+
+### Jalankan Frontend (React + Vite)
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+Frontend default akan memanggil backend di `http://localhost:8000`.
+Jika perlu, override dengan env:
+```bash
+VITE_API_BASE=http://localhost:8000
+```

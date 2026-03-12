@@ -8,7 +8,7 @@
 
 > One sentence. Where are we RIGHT NOW?
 
-**Status**: Project health check berjalan; ditemukan dan diperbaiki bug risiko overwrite file resume pada re-upload duplicate filename, test suite tetap hijau.
+**Status**: Phase 3 bootstrap selesai: backend FastAPI dan frontend React sudah berjalan end-to-end untuk flow dasar analyze + tracker.
 
 ---
 
@@ -16,7 +16,7 @@
 
 > What is being worked on this session?
 
-- **Task**: Project Health Check — cek error, inkonsistensi, dan akurasi dokumentasi
+- **Task**: Phase 3 — Separated architecture bootstrap (FastAPI + React)
 - **Started**: 2026-03-12
 - **Target done**: 2026-03-12
 
@@ -32,7 +32,7 @@
 - [x] Phase 2.1: Auto-Extract — Single JD input, Gemini Flash Lite extraction
 - [x] Phase 2.2: Bugfix — Fix resume upload/tracker flow, isolate extract key
 - [x] Phase 2.5: Tracker Enhancement — Salary Range parsing dari JD
-- [ ] Phase 3: Separated — FastAPI backend + React frontend
+- [/] Phase 3: Separated — FastAPI backend + React frontend
 - [ ] Phase 4: Platform — Analytics, AI pipeline, background jobs
 
 ---
@@ -41,6 +41,14 @@
 
 > What was done last time? AI writes this at end of each session.
 
+
+**Date**: 2026-03-12
+- Mulai eksekusi Phase 3: tambah layer backend FastAPI (`job_assistant/backend/main.py`) dengan endpoint health, providers, resumes, analyze, dan tracker.
+- Tambah schema Pydantic untuk payload analisis (`job_assistant/backend/schemas.py`) agar validasi request/response lebih rapi.
+- Inisialisasi frontend React + Vite (`frontend/`) dengan UI dasar untuk upload/select resume, input JD, hasil analisis, dan tabel tracker.
+- Sinkronkan dependency: update `requirements.txt` (fastapi, uvicorn, python-multipart) dan tambahkan `frontend/package.json`.
+- Tambah unit test API di `tests/unit/test_phase3_api.py` (health + analyze success + missing API key).
+- Validasi implementasi: full Python test suite lulus (16 test), frontend build sukses, dan screenshot UI Phase 3 berhasil diambil.
 **Date**: 2026-03-12
 - Jalankan audit baseline: `pytest -q`, `compileall`, dan smoke test `test_extract.py` untuk memetakan kesehatan project saat ini.
 - Temukan inkonsistensi storage: re-upload resume dengan `custom_name` yang sama dapat menimpa file fisik meski record DB tetap lama.
@@ -87,13 +95,10 @@
 
 > First thing to do when resuming. Be specific.
 
-1. Masukkan API Key (OpenAI/DeepSeek/Claude/Gemini) ke `.env`
-2. Jalankan Streamlit dan lakukan full flow test dengan resume PDF asli + JD nyata
-3. Evaluasi kualitas output LLM dan akurasi ekstraksi company/role pada beberapa format JD
-4. Pause penambahan test non-urgent; kembali ke core task implementasi fitur utama
-4. Sepakati prioritas test implementasi pertama dari blueprint `docs/testing_strategy.md`
-
----
+1. Tambahkan halaman Settings di frontend untuk simpan provider/model/API key (menggantikan sidebar Streamlit)
+2. Tambahkan endpoint detail tracker (`GET /tracker/{id}`) dan aksi delete/edit dari UI React
+3. Mulai desain lapisan data access agar transisi SQLite -> PostgreSQL minim perubahan modul bisnis
+4. Review parity fitur Streamlit vs React dan buat checklist migrasi fitur yang belum pindah
 
 ## Blockers
 
