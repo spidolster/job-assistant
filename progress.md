@@ -77,6 +77,7 @@
 - Phase 2.3: Fix bug match score selalu 0 di tracker, ekstrak nilai dari LLM output menggunakan Regex
 - Phase 2.3: Fix `requirements.txt` (upgrade streamlit & hapus pandas) agar bisa di-install tanpa error build numpy di Windows, lalu jalankan instalasi.
 - Tambah file README.md untuk panduan instalasi dan penggunaan aplikasi
+- Version Control: Commit (fix regex match score & openai deps) dan Push ke GitHub
 - Phase 2.2: Fix resume upload → tracker flow (3 bugs diperbaiki)
 - Switch JD parser dari Gemini (key leaked) ke DeepSeek (`deepseek-chat`)
 - `sync_resumes_from_disk()` — auto-register existing PDFs ke SQLite saat startup

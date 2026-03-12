@@ -42,3 +42,14 @@
 - [ ] Migrasi auth/config setting dari Streamlit sidebar ke halaman setting frontend
 - [ ] Tambahkan endpoint detail tracker (`GET /tracker/{id}`) + delete action di UI
 - [ ] Siapkan adapter DB agar mudah switch SQLite -> PostgreSQL
+
+### 8. Documentation & Setup
+- [x] Buat file `README.md` tentang cara setup dan menjalankan project
+- [x] Install dependensi (`requirements.txt`) agar `streamlit` bisa dijalankan
+
+### 9. Phase 2.4 — Python 3.14 Compatibility Fix
+- [x] Upgrade `openai` (v1.14.x incompatible with httpx di Python 3.14 karena keyword `proxies`)
+- [x] Test re-run server Streamlit
+
+### 10. Version Control
+- [x] Push semua perubahan ke GitHub
