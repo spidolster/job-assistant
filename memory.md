@@ -87,6 +87,7 @@
 ## Lessons Learned
 
 - Phase numbering: fitur yang masih pakai file lokal = Phase 1.x, bukan Phase 2. Phase 2 dimulai ketika arsitektur berubah (SQLite).
+- Utility/smoke-test script tidak boleh hardcode API key; selalu gunakan environment variable untuk menghindari kebocoran kredensial.
 
 ---
 

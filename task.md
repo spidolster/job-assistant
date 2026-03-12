@@ -64,3 +64,9 @@
 - [x] Simpan hasil parse salary range saat save ke tracker
 - [x] Tampilkan kolom "Salary Range" di tab My Tracker
 - [x] Validasi compile + smoke test parsing
+
+
+### 11. Project Health Check — Error & Documentation Consistency
+- [x] Audit smoke test script (`test_extract.py`) dan hilangkan hardcoded credential
+- [x] Samakan dokumentasi README dengan implementasi extractor saat ini (DeepSeek)
+- [x] Jalankan validasi cepat (`compileall`, smoke test extraction)

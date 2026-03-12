@@ -8,7 +8,7 @@
 
 > One sentence. Where are we RIGHT NOW?
 
-**Status**: Kolom `Salary Range` sudah ditambahkan di tracker, nilainya diparse otomatis dari job description saat save aplikasi (Phase 2.5).
+**Status**: Audit health check selesai — smoke test extractor sudah valid, tidak ada hardcoded API key, dan README sudah selaras dengan implementasi extractor saat ini.
 
 ---
 
@@ -16,7 +16,7 @@
 
 > What is being worked on this session?
 
-- **Task**: Phase 2.5 Tambah Salary Range di Tracker (parse dari Job Description)
+- **Task**: Project Health Check — cek error, inkonsistensi, dan akurasi dokumentasi
 - **Started**: 2026-03-12
 - **Target done**: 2026-03-12
 
@@ -42,6 +42,10 @@
 > What was done last time? AI writes this at end of each session.
 
 **Date**: 2026-03-12
+- Audit project end-to-end untuk error/inkonsistensi dan kecocokan dokumentasi.
+- Perbaiki `test_extract.py`: hapus hardcoded API key, perbaiki signature function call agar sesuai implementasi terbaru, dan tambah warning saat env key belum tersedia.
+- Koreksi README agar fitur extractor konsisten (DeepSeek-only untuk auto-extract company/role).
+- Jalankan validasi `compileall` dan smoke test `python test_extract.py`.
 - Phase 2.5: Tambah kolom `salary_range` di DB `applications` + migration `ALTER TABLE` otomatis jika DB lama belum punya kolom.
 - Phase 2.5: Implement parsing salary range dari JD (`extract_salary_range`) dan simpan ke tracker saat analisis.
 - Phase 2.5: Tampilkan kolom "Salary Range" di tabel My Tracker dan ambil dari query SQLite.
@@ -67,10 +71,10 @@
 
 > First thing to do when resuming. Be specific.
 
-1. Masukkan API Key (OpenAI atau DeepSeek) ke `.env`
-2. Test aplikasi dengan resume PDF asli + JD nyata
-3. Evaluasi kualitas output LLM, refine prompt jika perlu
-4. Uji parser salary range pada variasi JD Indonesia/English untuk improve coverage regex
+1. Masukkan API Key (OpenAI/DeepSeek/Claude/Gemini) ke `.env`
+2. Jalankan Streamlit dan lakukan full flow test dengan resume PDF asli + JD nyata
+3. Evaluasi kualitas output LLM dan akurasi ekstraksi company/role pada beberapa format JD
+4. Tambahkan test otomatis (unit test) untuk `extract_match_score` dan `extract_salary_range`
 
 ---
 
