@@ -72,6 +72,7 @@
 
 ## Lessons Learned
 
+- Phase 3 dimulai dengan pendekatan incremental: backend FastAPI membungkus modul bisnis existing (`modules/*`) dulu, lalu frontend React mengonsumsi API agar migrasi aman tanpa rewrite besar.
 > Mistakes made, dead ends explored, things that didn't work.
 
 ---
@@ -86,6 +87,7 @@
 
 ## Lessons Learned
 
+- Phase 3 dimulai dengan pendekatan incremental: backend FastAPI membungkus modul bisnis existing (`modules/*`) dulu, lalu frontend React mengonsumsi API agar migrasi aman tanpa rewrite besar.
 - Phase numbering: fitur yang masih pakai file lokal = Phase 1.x, bukan Phase 2. Phase 2 dimulai ketika arsitektur berubah (SQLite).
 - Utility/smoke-test script tidak boleh hardcode API key; selalu gunakan environment variable untuk menghindari kebocoran kredensial.
 - Strategi testing untuk project ini: test harus terpusat di `tests/` (unit/integration/e2e), risk-based, dan meminimalkan network dependency agar tetap simple serta scalable.
@@ -102,3 +104,6 @@
 ---
 
 *Last updated: 2026-03-12 (updated: testing strategy principle)*
+
+
+*Last updated: 2026-03-12 (updated: phase 3 bootstrap strategy)*
