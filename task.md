@@ -53,3 +53,7 @@
 
 ### 10. Version Control
 - [x] Push semua perubahan ke GitHub
+
+### 11. Refactor Utilities
+- [x] Pindahkan `test_extract.py` ke folder `scripts/`
+

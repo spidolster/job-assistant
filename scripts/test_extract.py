@@ -10,7 +10,7 @@ import os
 import sys
 
 # Add project package path so local modules are importable
-sys.path.append(os.path.join(os.path.dirname(__file__), "job_assistant"))
+sys.path.append(os.path.join(os.path.dirname(__file__), "..", "job_assistant"))
 
 from modules.analyzer import extract_company_and_role
 

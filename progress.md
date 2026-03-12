@@ -120,3 +120,4 @@
 *Last updated: 2026-03-12 (session update: merge blocker handled via test hardening)*
 *Last updated: 2026-03-12 (session update: testing strategy discussion draft documented)*
 *Last updated: 2026-03-12 (session update: health check + resume overwrite fix)*
+*Last updated: 2026-03-12 (session update: moved test_extract.py from root to scripts/)*
