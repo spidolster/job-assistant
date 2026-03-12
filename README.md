@@ -5,7 +5,7 @@
 ## ✨ Fitur Utama
 - Mengunggah Resume (PDF) dan otomatis mengekstrak teksnya.
 - Menganalisis *Match Score*, kekuatan (*strengths*), kesenjangan (*gaps*), dan memberikan rekomendasi untuk posisi yang dilamar.
-- Otomatis mengekstrak nama Perusahaan dan Posisi dari *raw text* lowongan menggunakan DeepSeek / Gemini Flash.
+- Otomatis mengekstrak nama Perusahaan dan Posisi dari *raw text* lowongan menggunakan DeepSeek.
 - Menyimpan histori lamaran dalam *Tracker* lokal agar rapih (menggunakan SQLite).
 
 ## 🛠️ Prasyarat
