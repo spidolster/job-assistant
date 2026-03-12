@@ -3,3 +3,4 @@ pdfplumber==0.11.0
 python-dotenv==1.0.1
 openai==1.14.2
 anthropic>=0.18.0
+pandas>=2.0.0

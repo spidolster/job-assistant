@@ -8,7 +8,7 @@
 
 > One sentence. Where are we RIGHT NOW?
 
-**Status**: Phase 1.0 selesai. Mulai coding Phase 1.5 (Persistent Keys, Model Select, Resume History).
+**Status**: Phase 2.1 selesai! Fitur auto-extract Company dan Role menggunakan Gemini 2.0 Flash Lite sudah tersambung dan verified di UI.
 
 ---
 
@@ -16,7 +16,7 @@
 
 > What is being worked on this session?
 
-- **Task**: Coding Phase 1.5 UX Improvements
+- **Task**: Coding Phase 2.1 Auto-Extract Feature
 - **Started**: 2026-03-12
 - **Target done**: 2026-03-12
 
@@ -27,8 +27,9 @@
 > Check off as completed.
 
 - [x] Phase 1.0: MVP — Resume vs JD Matcher (Streamlit monolith)
-- [/] Phase 1.5: UX Polish — Persistent Keys, Model Select, Resume History
-- [ ] Phase 2: Feature-rich — Builder, Tracker, Research (Streamlit + SQLite)
+- [x] Phase 1.5: UX Polish — Persistent Keys, Model Select, Resume History
+- [x] Phase 2.0: Feature-rich — Tracker Dashboard (Streamlit + SQLite)
+- [x] Phase 2.1: Auto-Extract — Single JD input, Gemini Flash Lite extraction
 - [ ] Phase 3: Separated — FastAPI backend + React frontend
 - [ ] Phase 4: Platform — Analytics, AI pipeline, background jobs
 
@@ -40,13 +41,13 @@
 
 **Date**: 2026-03-12
 **Done**:
-- Selesaikan MVP Phase 1 (Streamlit base, PDF extract, AI call).
-- Reset `task.md` untuk masuk ke Epic Phase 2.
-- Buat `implementation_plan.md` untuk fitur Save Keys, Model Select, dan Resume History.
+- Phase 2: Integrasi SQLite, tab layout Tracker, dan history lamaran otomatis.
+- Phase 2.1: Refactor UI JD menjadi satu *raw input* saja.
+- Menambahkan fungsi pemisah otomatis (auto-extract) menggunakan Gemini 2.0 Flash Lite yang mem-parsing nama Perusahaan dan Posisi dalam output JSON.
 
 **Left unfinished**:
-- Finalisasi review implementasi dengan Ari.
-- Mulai coding Phase 2.
+- Lakukan test integrasi / real use-case oleh User (kemungkinan Gemini limit 429).
+- Eksplorasi Phase 3 (FastAPI/React).
 
 ---
 

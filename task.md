@@ -9,32 +9,16 @@
 
 ---
 
-## Current Epic: Phase 1.5 — UX Polish ✅
+## Current Epic: Phase 2.1 — Auto-Extract Company & Role
 
-### 1. API Key Persistence
-- [x] Create `modules/config.py` for `.env` management
-  - [x] Implement `save_api_key()`
-  - [x] Implement `get_api_key()`
-- [x] Update `app.py` Sidebar to use persistent API key saving
+### 1. Extractor Function
+- [x] In `modules/analyzer.py`, create `extract_company_and_role(raw_text: str, api_key: str) -> dict`
+- [x] Craft a prompt instructing Gemini 2.0 Flash Lite to extract the company name and job title from the text and return valid JSON (e.g., `{"company": "...", "role": "..."}`).
+- [x] Use the provided Gemini API key specifically for this function.
 
-### 2. LLM Model Selection
-- [x] Update `modules/analyzer.py`
-  - [x] Make `analyze_resume_vs_jd` accept `model_name`
-  - [x] Remove hardcoded models in API calls
-- [x] Update `app.py` Sidebar
-  - [x] Add model dropdown based on selected provider
-  - [x] Pass selected model to analyzer
-
-### 3. Local Resume Storage
-- [x] Create `data/resumes/` directory
-- [x] Create `modules/storage.py`
-  - [x] Implement `save_resume()`
-  - [x] Implement `get_saved_resumes()`
-- [x] Update `app.py` Main UI
-  - [x] Add Resume selection dropdown (History)
-  - [x] Add logic to handle new uploads vs selecting existing PDFs
-  - [x] Pass the correct file path/object to the text extractor
-
-### 4. Integration & UI Polish
-- [x] Test end-to-end flow with saved keys and selected resumes
-- [x] Ensure clear error messages (e.g., if a saved resume file is deleted)
+### 2. UI Refactor
+- [x] In `app.py`, remove the `company_name` and `role_name` `st.text_input` fields.
+- [x] Update the JD text area to indicate the user should paste the *entire* raw text (Company, Title, and Description).
+- [x] When the Analysis button is clicked, call `extract_company_and_role` first.
+- [x] Display the extracted company and role to the user (e.g., using `st.info`).
+- [x] Use the extracted data when calling `save_application` for the tracker.

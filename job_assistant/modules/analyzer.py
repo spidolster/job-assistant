@@ -141,3 +141,56 @@ Buatlah analisis komprehensif dalam bahasa Indonesia dengan struktur berikut:
 3. **Kesenjangan (Gaps)**: Keterampilan atau pengalaman yang diminta di JD tapi tidak terlihat jelas di resume.
 4. **Rekomendasi**: Saran spesifik untuk memperbaiki resume atau hal-hal yang perlu disiapkan untuk wawancara.
 """
+
+def extract_company_and_role(raw_jd_text: str, api_key: str) -> dict:
+    """
+    Uses Gemini 2.0 Flash Lite to extract the Company Name and Job Role from a raw text payload.
+    Returns:
+        dict: {"company": "Company Name", "role": "Job Role"}
+    """
+    from openai import OpenAI
+    import json
+    
+    client = OpenAI(
+        api_key=api_key,
+        base_url="https://generativelanguage.googleapis.com/v1beta/openai/"
+    )
+    
+    prompt = f"""
+Given the following raw job description text, extract the Company Name and the Job Title (Role).
+Return ONLY a valid JSON object with the keys "company" and "role".
+Do not include any markdown formatting like ```json or anything else. Just the raw JSON string.
+If you cannot find the company name, use "Unknown Company".
+If you cannot find the job title, use "Unknown Role".
+
+Raw Text:
+{raw_jd_text}
+"""
+    try:
+        response = client.chat.completions.create(
+            model="gemini-2.0-flash-lite",
+            messages=[
+                {"role": "user", "content": prompt}
+            ],
+            temperature=0.1 # Low temp for deterministic JSON extraction
+        )
+        
+        result_text = response.choices[0].message.content.strip()
+        
+        # Clean up any potential markdown ticks that might have slipped through
+        if result_text.startswith("```json"):
+            result_text = result_text.replace("```json", "", 1)
+        if result_text.endswith("```"):
+            result_text = result_text[::-1].replace("```", "", 1)[::-1]
+            
+        result_text = result_text.strip()
+        data = json.loads(result_text)
+        
+        return {
+            "company": data.get("company", "Unknown Company"),
+            "role": data.get("role", "Unknown Role")
+        }
+        
+    except Exception as e:
+        print(f"Extraction error: {e}")
+        return {"company": "Unknown Company", "role": "Unknown Role"}
