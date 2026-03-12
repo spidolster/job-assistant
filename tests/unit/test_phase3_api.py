@@ -57,6 +57,26 @@ class TestPhase3API(unittest.TestCase):
         self.assertEqual(response.status_code, 400)
         self.assertIn('API key', response.json()['detail'])
 
+    def test_upload_rejects_oversized_file(self):
+        """Upload > 5MB must return 400."""
+        big_content = b'%PDF-' + b'x' * (6 * 1024 * 1024)
+        response = self.client.post(
+            '/resumes/upload',
+            files={'file': ('big.pdf', big_content, 'application/pdf')},
+        )
+        self.assertEqual(response.status_code, 400)
+        self.assertIn('5 MB', response.json()['detail'])
+
+    def test_upload_rejects_non_pdf_content(self):
+        """A .pdf file with non-PDF content must return 400."""
+        fake_content = b'NOT-A-PDF-FILE-CONTENT'
+        response = self.client.post(
+            '/resumes/upload',
+            files={'file': ('fake.pdf', fake_content, 'application/pdf')},
+        )
+        self.assertEqual(response.status_code, 400)
+        self.assertIn('bukan PDF', response.json()['detail'])
+
 
 if __name__ == '__main__':
     unittest.main()

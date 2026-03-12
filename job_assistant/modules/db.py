@@ -50,7 +50,15 @@ def init_db():
     columns = [row[1] for row in cursor.fetchall()]
     if "salary_range" not in columns:
         cursor.execute("ALTER TABLE applications ADD COLUMN salary_range TEXT")
-    
+
+    # Indexes for common query patterns (JOIN on resume_id, ORDER BY created_at).
+    cursor.execute(
+        "CREATE INDEX IF NOT EXISTS idx_applications_resume_id ON applications(resume_id)"
+    )
+    cursor.execute(
+        "CREATE INDEX IF NOT EXISTS idx_applications_created_at ON applications(created_at)"
+    )
+
     conn.commit()
     conn.close()
 

@@ -77,13 +77,14 @@ def get_application_by_id(app_id: int) -> dict:
     return dict(row) if row else None
 
 def delete_application(app_id: int) -> bool:
-    """Delete an application record."""
+    """Delete an application record. Returns False if ID does not exist."""
     try:
         conn = get_db_connection()
         cursor = conn.cursor()
         cursor.execute("DELETE FROM applications WHERE id = ?", (app_id,))
+        deleted = cursor.rowcount > 0
         conn.commit()
         conn.close()
-        return True
+        return deleted
     except Exception:
         return False

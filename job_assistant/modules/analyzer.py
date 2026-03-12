@@ -3,10 +3,26 @@ analyzer.py — Analyze a resume against a job description using an LLM.
 Supports OpenAI and DeepSeek providers with configurable model selection.
 """
 import os
+import re
 from dotenv import load_dotenv
 
 # Load environment variables
 load_dotenv()
+
+# Pre-compiled regex patterns for score/salary extraction
+_SCORE_PATTERNS = [
+    re.compile(r'(?i)match\s*score.*?(\d+)\s*%'),
+    re.compile(r'(?i)kecocokan.*?(\d+)\s*%'),
+    re.compile(r'(?i)score.*?:\s*(\d+)'),
+    re.compile(r'(\d+)\s*%'),  # fallback: first percentage
+]
+
+_SALARY_PATTERNS = [
+    re.compile(r"(?i)(rp\.?\s?\d[\d\.,]*\s?(?:juta|jt|miliar|k|rb)?\s?(?:-|–|to|sampai)\s?rp\.?\s?\d[\d\.,]*\s?(?:juta|jt|miliar|k|rb)?(?:\s*/\s*(?:bulan|month|tahun|year))?)"),
+    re.compile(r"(?i)((?:\d[\d\.,]*\s?(?:juta|jt|miliar|k|rb)\s?(?:-|–|to|sampai)\s?\d[\d\.,]*\s?(?:juta|jt|miliar|k|rb))\s*(?:/\s*(?:bulan|month|tahun|year))?)"),
+    re.compile(r"(?i)(salary\s*(?:range)?\s*[:\-]?\s*rp\.?\s?\d[\d\.,]*\s?(?:-|–|to)\s?rp\.?\s?\d[\d\.,]*)"),
+    re.compile(r"(?i)(gaji\s*(?:range)?\s*[:\-]?\s*rp\.?\s?\d[\d\.,]*\s?(?:-|–|to|sampai)\s?rp\.?\s?\d[\d\.,]*)"),
+]
 
 
 def analyze_resume_vs_jd(resume_text: str, jd_text: str, provider: str = "", model_name: str = "") -> str:
@@ -51,8 +67,8 @@ def _analyze_with_openai(resume_text: str, jd_text: str, model_name: str) -> str
             temperature=0.7
         )
         return response.choices[0].message.content
-    except Exception as e:
-        return f"Error during OpenAI API call: {e}"
+    except Exception:
+        return "Error: Gagal menghubungi OpenAI API. Periksa API key dan koneksi."
 
 
 def _analyze_with_deepseek(resume_text: str, jd_text: str, model_name: str) -> str:
@@ -74,8 +90,8 @@ def _analyze_with_deepseek(resume_text: str, jd_text: str, model_name: str) -> s
             temperature=0.7
         )
         return response.choices[0].message.content
-    except Exception as e:
-        return f"Error during DeepSeek API call: {e}"
+    except Exception:
+        return "Error: Gagal menghubungi DeepSeek API. Periksa API key dan koneksi."
 
 
 def _analyze_with_gemini(resume_text: str, jd_text: str, model_name: str) -> str:
@@ -98,8 +114,8 @@ def _analyze_with_gemini(resume_text: str, jd_text: str, model_name: str) -> str
             temperature=0.7
         )
         return response.choices[0].message.content
-    except Exception as e:
-        return f"Error during Gemini API call: {e}"
+    except Exception:
+        return "Error: Gagal menghubungi Gemini API. Periksa API key dan koneksi."
 
 
 def _analyze_with_claude(resume_text: str, jd_text: str, model_name: str) -> str:
@@ -120,8 +136,8 @@ def _analyze_with_claude(resume_text: str, jd_text: str, model_name: str) -> str
             temperature=0.7
         )
         return response.content[0].text
-    except Exception as e:
-        return f"Error during Claude API call: {e}"
+    except Exception:
+        return "Error: Gagal menghubungi Claude API. Periksa API key dan koneksi."
 
 
 def _build_prompt(resume_text: str, jd_text: str) -> str:
@@ -207,22 +223,13 @@ def extract_salary_range(jd_text: str) -> str:
     Extract salary range information from raw job description text.
     Returns "-" when no clear salary signal is found.
     """
-    import re
-
     if not jd_text:
         return "-"
 
     normalized = " ".join(jd_text.split())
 
-    patterns = [
-        r"(?i)(rp\.?\s?\d[\d\.,]*\s?(?:juta|jt|miliar|k|rb)?\s?(?:-|–|to|sampai)\s?rp\.?\s?\d[\d\.,]*\s?(?:juta|jt|miliar|k|rb)?(?:\s*/\s*(?:bulan|month|tahun|year))?)",
-        r"(?i)((?:\d[\d\.,]*\s?(?:juta|jt|miliar|k|rb)\s?(?:-|–|to|sampai)\s?\d[\d\.,]*\s?(?:juta|jt|miliar|k|rb))\s*(?:/\s*(?:bulan|month|tahun|year))?)",
-        r"(?i)(salary\s*(?:range)?\s*[:\-]?\s*rp\.?\s?\d[\d\.,]*\s?(?:-|–|to)\s?rp\.?\s?\d[\d\.,]*)",
-        r"(?i)(gaji\s*(?:range)?\s*[:\-]?\s*rp\.?\s?\d[\d\.,]*\s?(?:-|–|to|sampai)\s?rp\.?\s?\d[\d\.,]*)",
-    ]
-
-    for pattern in patterns:
-        match = re.search(pattern, normalized)
+    for pattern in _SALARY_PATTERNS:
+        match = pattern.search(normalized)
         if match:
             return match.group(1).strip()
 
@@ -234,28 +241,13 @@ def extract_match_score(analysis_text: str) -> int:
     Extracts the match score percentage from the LLM analysis text using Regex.
     Defaults to 0 if not found.
     """
-    import re
     if not analysis_text:
         return 0
-        
-    # Look for "Match Score" or similar context followed by a number and optionally a %
-    match = re.search(r'(?i)match\s*score.*?(\d+)\s*%', analysis_text)
-    if match:
-        return int(match.group(1))
-        
-    match = re.search(r'(?i)kecocokan.*?(\d+)\s*%', analysis_text)
-    if match:
-        return int(match.group(1))
-        
-    match = re.search(r'(?i)score.*?:\s*(\d+)', analysis_text)
-    if match:
-        return int(match.group(1))
-        
-    # Fallback: find the first percentage in the text
-    match = re.search(r'(\d+)\s*%', analysis_text)
-    if match:
-        return int(match.group(1))
-        
-    return 0
 
+    for pattern in _SCORE_PATTERNS:
+        match = pattern.search(analysis_text)
+        if match:
+            return int(match.group(1))
+
+    return 0
 

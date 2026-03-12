@@ -96,6 +96,7 @@
 - Batas testing disepakati: setelah area urgent tercakup, hentikan ekspansi test non-urgent dan kembali fokus ke core task agar delivery tetap rapi.
 - Untuk test yang mem-patch global/module-level path, selalu restore state di tearDown agar PR lebih mudah merge dan test tidak flaky di CI.
 - Untuk penyimpanan resume, cek duplikat filename di DB sebelum menulis file fisik; ini mencegah mismatch DB-vs-file saat upload ulang nama yang sama.
+- QA report harus di-triage terhadap kode aktual sebelum dikerjakan — beberapa temuan bisa false positive (SQL injection sudah parameterized, API key logging yang tidak ada).
 
 ---
 

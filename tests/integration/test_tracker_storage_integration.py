@@ -150,6 +150,11 @@ class TestTrackerStorageIntegration(unittest.TestCase):
 
         self.assertIn("salary_range", columns)
 
+    def test_delete_nonexistent_application_returns_false(self) -> None:
+        """Deleting an ID that doesn't exist must return False, not True."""
+        result = tracker.delete_application(999999)
+        self.assertFalse(result)
 
-if __name__ == "__main__":
+
+if __name__ == '__main__':
     unittest.main()

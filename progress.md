@@ -8,7 +8,7 @@
 
 > One sentence. Where are we RIGHT NOW?
 
-**Status**: Phase 3 bootstrap selesai: backend FastAPI dan frontend React sudah berjalan end-to-end untuk flow dasar analyze + tracker.
+**Status**: QA report follow-up selesai: 14 fixes (security, code quality, accessibility) diterapkan, 19/19 tests pass.
 
 ---
 
@@ -41,6 +41,15 @@
 
 > What was done last time? AI writes this at end of each session.
 
+
+**Date**: 2026-03-12 (QA Follow-up)
+- Triage 62 temuan QA report: identifikasi 3 false positives (SQL injection — sudah parameterized).
+- P0 Security: CORS origin restricted, file upload validation (size 5MB + PDF magic bytes), JD max length 50k, delete_application rowcount fix, error message sanitization.
+- P1 Code Quality: DB indexes, string concat optimization, regex pre-compile, config caching.
+- P2 UI/UX: accessibility labels, empty states, table caption, deprecated attr fix, responsive flex-wrap.
+- Tambah 3 test baru, total 19/19 tests pass + frontend build sukses.
+- Browser automated testing: 2 test sessions (page load + form interactions), semua pass.
+- README.md ditulis ulang: dual-mode instructions, testing section, security section, folder structure.
 
 **Date**: 2026-03-12
 - Mulai eksekusi Phase 3: tambah layer backend FastAPI (`job_assistant/backend/main.py`) dengan endpoint health, providers, resumes, analyze, dan tracker.

@@ -93,16 +93,23 @@ export default function App() {
   return (
     <main style={{ fontFamily: 'Arial, sans-serif', maxWidth: 1000, margin: '0 auto', padding: 24 }}>
       <h1>Job Assistant — Phase 3</h1>
-      <p>Frontend React + backend FastAPI. Analyze & tracker sekarang terpisah dari Streamlit monolith.</p>
+      <p>Frontend React + backend FastAPI. Analyze &amp; tracker sekarang terpisah dari Streamlit monolith.</p>
 
       {error && <p style={{ color: 'crimson' }}>Error: {error}</p>}
 
       <section style={{ border: '1px solid #ddd', padding: 16, borderRadius: 8, marginBottom: 16 }}>
         <h2>Resume</h2>
-        <input type="file" accept="application/pdf" onChange={onUploadResume} disabled={loading} />
+        <div>
+          <label htmlFor="resume-upload">Upload resume (PDF)</label>
+          <br />
+          <input id="resume-upload" type="file" accept="application/pdf" onChange={onUploadResume} disabled={loading} />
+        </div>
         <div style={{ marginTop: 8 }}>
-          <select value={resumeId} onChange={(e) => setResumeId(e.target.value)}>
+          <label htmlFor="resume-select">Pilih resume tersimpan</label>
+          <br />
+          <select id="resume-select" value={resumeId} onChange={(e) => setResumeId(e.target.value)}>
             <option value="">Pilih resume...</option>
+            {resumes.length === 0 && <option disabled>Belum ada resume tersimpan</option>}
             {resumes.map((item) => (
               <option key={item.id} value={item.id}>
                 {item.filename}
@@ -114,29 +121,42 @@ export default function App() {
 
       <section style={{ border: '1px solid #ddd', padding: 16, borderRadius: 8, marginBottom: 16 }}>
         <h2>Analyze</h2>
-        <div style={{ display: 'flex', gap: 12, marginBottom: 8 }}>
-          <select value={selectedProvider} onChange={(e) => setSelectedProvider(e.target.value)}>
-            {Object.keys(providers).map((provider) => (
-              <option key={provider} value={provider}>
-                {provider}
-              </option>
-            ))}
-          </select>
-          <select value={selectedModel} onChange={(e) => setSelectedModel(e.target.value)}>
-            {modelOptions.map((model) => (
-              <option key={model} value={model}>
-                {model}
-              </option>
-            ))}
-          </select>
+        <div style={{ display: 'flex', gap: 12, marginBottom: 8, flexWrap: 'wrap' }}>
+          <div>
+            <label htmlFor="provider-select">AI Provider</label>
+            <br />
+            <select id="provider-select" value={selectedProvider} onChange={(e) => setSelectedProvider(e.target.value)}>
+              {Object.keys(providers).map((provider) => (
+                <option key={provider} value={provider}>
+                  {provider}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label htmlFor="model-select">Model</label>
+            <br />
+            <select id="model-select" value={selectedModel} onChange={(e) => setSelectedModel(e.target.value)}>
+              {modelOptions.map((model) => (
+                <option key={model} value={model}>
+                  {model}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
-        <textarea
-          rows={8}
-          value={jdText}
-          placeholder="Paste Job Description di sini"
-          onChange={(e) => setJdText(e.target.value)}
-          style={{ width: '100%', marginBottom: 8 }}
-        />
+        <div>
+          <label htmlFor="jd-textarea">Job Description</label>
+          <br />
+          <textarea
+            id="jd-textarea"
+            rows={8}
+            value={jdText}
+            placeholder="Paste Job Description di sini"
+            onChange={(e) => setJdText(e.target.value)}
+            style={{ width: '100%', marginBottom: 8 }}
+          />
+        </div>
         <button type="button" onClick={onAnalyze} disabled={loading || !jdText.trim() || !resumeId}>
           {loading ? 'Memproses...' : 'Analisis'}
         </button>
@@ -154,28 +174,35 @@ export default function App() {
 
       <section style={{ border: '1px solid #ddd', padding: 16, borderRadius: 8 }}>
         <h2>Tracker</h2>
-        <table width="100%" cellPadding="8" style={{ borderCollapse: 'collapse' }}>
-          <thead>
-            <tr>
-              <th align="left">Tanggal</th>
-              <th align="left">Company</th>
-              <th align="left">Role</th>
-              <th align="left">Score</th>
-              <th align="left">Salary</th>
-            </tr>
-          </thead>
-          <tbody>
-            {tracker.map((item) => (
-              <tr key={item.id} style={{ borderTop: '1px solid #eee' }}>
-                <td>{item.created_at}</td>
-                <td>{item.company}</td>
-                <td>{item.role}</td>
-                <td>{item.Match_score ?? '-'}</td>
-                <td>{item.salary_range || '-'}</td>
+        {tracker.length === 0 ? (
+          <p style={{ color: '#888' }}>Belum ada riwayat lamaran. Mulai analisis untuk menyimpan ke tracker.</p>
+        ) : (
+          <table style={{ width: '100%', borderCollapse: 'collapse' }} cellPadding="8">
+            <caption style={{ captionSide: 'top', textAlign: 'left', marginBottom: 8, fontWeight: 'bold' }}>
+              Riwayat Lamaran ({tracker.length})
+            </caption>
+            <thead>
+              <tr>
+                <th align="left">Tanggal</th>
+                <th align="left">Company</th>
+                <th align="left">Role</th>
+                <th align="left">Score</th>
+                <th align="left">Salary</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {tracker.map((item) => (
+                <tr key={item.id} style={{ borderTop: '1px solid #eee' }}>
+                  <td>{item.created_at}</td>
+                  <td>{item.company}</td>
+                  <td>{item.role}</td>
+                  <td>{item.Match_score ?? '-'}</td>
+                  <td>{item.salary_range || '-'}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
       </section>
     </main>
   );

@@ -8,16 +8,21 @@ from dotenv import load_dotenv, set_key
 
 # Path to the .env file (project root)
 _ENV_PATH = Path(__file__).resolve().parent.parent.parent / ".env"
+_config_loaded = False
 
 def _ensure_env_file():
     """Create .env if it doesn't exist."""
     if not _ENV_PATH.exists():
         _ENV_PATH.touch()
 
-def load_config():
-    """Load .env into environment variables."""
+def load_config(force: bool = False):
+    """Load .env into environment variables. Skips if already loaded unless force=True."""
+    global _config_loaded
+    if _config_loaded and not force:
+        return
     _ensure_env_file()
     load_dotenv(_ENV_PATH, override=True)
+    _config_loaded = True
 
 def save_api_key(provider: str, key: str):
     """
@@ -39,7 +44,7 @@ def get_api_key(provider: str) -> str:
     Returns:
         The API key string, or empty string if not set.
     """
-    load_config()
+    load_config()  # Uses cached read unless force=True
     env_var = f"{provider.upper()}_API_KEY"
     value = os.getenv(env_var, "")
     # Don't return placeholder values

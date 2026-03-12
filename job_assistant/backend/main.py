@@ -7,6 +7,11 @@ from pathlib import Path
 from fastapi import FastAPI, File, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 
+_MAX_UPLOAD_BYTES = 5 * 1024 * 1024  # 5 MB
+_MAX_JD_LENGTH = 50_000  # characters
+_PDF_MAGIC = b"%PDF"
+
+
 ROOT_DIR = Path(__file__).resolve().parent.parent
 if str(ROOT_DIR) not in sys.path:
     sys.path.append(str(ROOT_DIR))
@@ -32,7 +37,7 @@ app = FastAPI(title="Job Assistant API", version="0.1.0")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=os.getenv("CORS_ALLOW_ORIGINS", "*").split(","),
+    allow_origins=os.getenv("CORS_ALLOW_ORIGINS", "http://localhost:5173").split(","),
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -68,6 +73,12 @@ async def upload_resume(file: UploadFile = File(...)) -> dict:
 
     content = await file.read()
 
+    if len(content) > _MAX_UPLOAD_BYTES:
+        raise HTTPException(status_code=400, detail="Ukuran file melebihi batas 5 MB")
+
+    if not content[:4].startswith(_PDF_MAGIC):
+        raise HTTPException(status_code=400, detail="File bukan PDF yang valid")
+
     class UploadedFileWrapper:
         def __init__(self, name: str, payload: bytes):
             self.name = name
@@ -87,6 +98,12 @@ async def upload_resume(file: UploadFile = File(...)) -> dict:
 
 @app.post("/analyze", response_model=AnalyzeResponse)
 def analyze(payload: AnalyzeRequest) -> AnalyzeResponse:
+    if len(payload.jd_text) > _MAX_JD_LENGTH:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Job description terlalu panjang (maks {_MAX_JD_LENGTH:,} karakter)",
+        )
+
     api_key = get_api_key(payload.provider)
     if not api_key:
         raise HTTPException(

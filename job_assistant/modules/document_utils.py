@@ -8,18 +8,18 @@ def extract_text_from_pdf(pdf_path: str) -> str:
     Returns:
         str: The extracted text combined from all pages.
     """
-    text = ""
+    pages = []
     try:
         with pdfplumber.open(pdf_path) as pdf:
             for page in pdf.pages:
                 extracted = page.extract_text()
                 if extracted:
-                    text += extracted + "\n"
+                    pages.append(extracted)
     except Exception as e:
         print(f"Error extracting text from PDF: {e}")
         return ""
     
-    return text.strip()
+    return "\n".join(pages).strip()
 
 # Optional: Add a function to handle in-memory uploaded files from Streamlit
 def extract_text_from_uploaded_pdf(uploaded_file) -> str:
@@ -30,15 +30,15 @@ def extract_text_from_uploaded_pdf(uploaded_file) -> str:
     Returns:
         str: The extracted text combined from all pages.
     """
-    text = ""
+    pages = []
     try:
         with pdfplumber.open(uploaded_file) as pdf:
             for page in pdf.pages:
                 extracted = page.extract_text()
                 if extracted:
-                    text += extracted + "\n"
+                    pages.append(extracted)
     except Exception as e:
         print(f"Error extracting text from uploaded PDF: {e}")
         return ""
     
-    return text.strip()
+    return "\n".join(pages).strip()

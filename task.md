@@ -57,3 +57,18 @@
 ### 11. Refactor Utilities
 - [x] Pindahkan `test_extract.py` ke folder `scripts/`
 
+### 12. QA Report Follow-up
+- [x] Fix CORS origin restriction
+- [x] Add file upload size limit (5MB) + PDF magic bytes validation
+- [x] Add JD text max length validation (50k chars)
+- [x] Fix `delete_application` return value
+- [x] Add DB indexes (`applications.resume_id`, `applications.created_at`)
+- [x] Fix string concatenation di `document_utils.py`
+- [x] Pre-compile regex di `analyzer.py`
+- [x] Sanitize error messages di `analyzer.py`
+- [x] Cache config di `config.py`
+- [x] Add accessibility labels di `App.jsx`
+- [x] Add empty states (resume list + tracker)
+- [x] Add table caption + fix deprecated width attr + flex-wrap
+- [x] Add 3 new tests (delete non-existent, oversized upload, non-PDF content)
+
