@@ -75,6 +75,16 @@
 ### 12. Test Strategy Discussion (pre-implementation)
 - [x] Revert commit test suite yang dibuat tanpa persetujuan user
 - [x] Diskusikan best practice desain test (unit/integration/e2e + scope tiap layer)
+- [x] Sepakati prioritas test pertama sebelum implementasi (parser critical)
+
+- [x] Dokumentasikan draft strategi testing terpusat di `docs/testing_strategy.md`
+
+- [x] Implement tahap 1: unit test parser (`extract_match_score`, `extract_salary_range`)
+- [x] Implement tahap 2: integration test tracker/storage (SQLite temp DB)
+
+- [x] Sepakati batas: test non-urgent ditunda, kembali ke core task
+
+- [x] Hardening integration tests: restore patched global paths (`DB_PATH`, `DB_DIR`, `_RESUMES_DIR`) di tearDown untuk mencegah flaky side effects
 - [ ] Sepakati prioritas test pertama sebelum implementasi
 
 - [x] Dokumentasikan draft strategi testing terpusat di `docs/testing_strategy.md`

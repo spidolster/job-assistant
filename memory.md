@@ -89,6 +89,14 @@
 - Phase numbering: fitur yang masih pakai file lokal = Phase 1.x, bukan Phase 2. Phase 2 dimulai ketika arsitektur berubah (SQLite).
 - Utility/smoke-test script tidak boleh hardcode API key; selalu gunakan environment variable untuk menghindari kebocoran kredensial.
 - Strategi testing untuk project ini: test harus terpusat di `tests/` (unit/integration/e2e), risk-based, dan meminimalkan network dependency agar tetap simple serta scalable.
+- Eksekusi test dilakukan bertahap: mulai dari parser kritikal (unit test) sebelum lanjut ke integration tracker/storage untuk menjaga ritme sederhana dan minim risiko.
+- Integration test tracker/storage terbaik dijalankan dengan SQLite temporary DB + patch extractor I/O agar test tetap cepat, deterministic, dan tidak tergantung file PDF/network nyata.
+- Batas testing disepakati: setelah area urgent tercakup, hentikan ekspansi test non-urgent dan kembali fokus ke core task agar delivery tetap rapi.
+- Untuk test yang mem-patch global/module-level path, selalu restore state di tearDown agar PR lebih mudah merge dan test tidak flaky di CI.
+
+---
+
+*Last updated: 2026-03-12 (updated: integration test isolation lesson)*
 
 ---
 
