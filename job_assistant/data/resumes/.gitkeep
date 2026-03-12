@@ -1,0 +1,2 @@
+# This file ensures the resumes directory is tracked by git even when empty 
+# while ignoring the actual PDF files inside it.

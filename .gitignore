@@ -1,0 +1,25 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual Environments
+venv/
+env/
+.env
+
+# Streamlit config (optional if you want to keep secrets out)
+.streamlit/
+
+# Local Data Storage
+job_assistant/data/resumes/*.pdf
+!job_assistant/data/resumes/.gitkeep
+
+# IDEs and Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# MacOS
+.DS_Store

@@ -1,0 +1,10 @@
+# Sample Job Description
+Posisi: Python Developer
+
+Kualifikasi:
+- Pengalaman minimal 2 tahun dengan Python.
+- Memahami framework web seperti Django atau FastAPI.
+- Pengalaman dengan database SQL (PostgreSQL/MySQL).
+- Familiar dengan Git dan Docker.
+- Mampu bekerja dalam tim dan memiliki komunikasi yang baik.
+- Nilai plus jika memiliki pengalaman dengan AWS atau Google Cloud.
