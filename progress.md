@@ -8,7 +8,7 @@
 
 > One sentence. Where are we RIGHT NOW?
 
-**Status**: Bug match score pada tracker (skor selalu 0) sudah diperbaiki. Ekstraksi otomatis dari hasil analisis menggunakan RegEx telah diimplementasikan (Phase 2.3).
+**Status**: Kolom `Salary Range` sudah ditambahkan di tracker, nilainya diparse otomatis dari job description saat save aplikasi (Phase 2.5).
 
 ---
 
@@ -16,7 +16,7 @@
 
 > What is being worked on this session?
 
-- **Task**: Phase 2.4 Fix Python 3.14 Compatibility (openai proxies bug)
+- **Task**: Phase 2.5 Tambah Salary Range di Tracker (parse dari Job Description)
 - **Started**: 2026-03-12
 - **Target done**: 2026-03-12
 
@@ -31,6 +31,7 @@
 - [x] Phase 2.0: Feature-rich — Tracker Dashboard (Streamlit + SQLite)
 - [x] Phase 2.1: Auto-Extract — Single JD input, Gemini Flash Lite extraction
 - [x] Phase 2.2: Bugfix — Fix resume upload/tracker flow, isolate extract key
+- [x] Phase 2.5: Tracker Enhancement — Salary Range parsing dari JD
 - [ ] Phase 3: Separated — FastAPI backend + React frontend
 - [ ] Phase 4: Platform — Analytics, AI pipeline, background jobs
 
@@ -41,6 +42,9 @@
 > What was done last time? AI writes this at end of each session.
 
 **Date**: 2026-03-12
+- Phase 2.5: Tambah kolom `salary_range` di DB `applications` + migration `ALTER TABLE` otomatis jika DB lama belum punya kolom.
+- Phase 2.5: Implement parsing salary range dari JD (`extract_salary_range`) dan simpan ke tracker saat analisis.
+- Phase 2.5: Tampilkan kolom "Salary Range" di tabel My Tracker dan ambil dari query SQLite.
 - Phase 2.4: Upgrade `openai` package dari `1.14.2` ke `1.50.0+` untuk memperbaiki error `__init__() got an unexpected keyword argument 'proxies'` di Python 3.14.
 - Phase 2.3: Fix bug match score selalu 0 di tracker, ekstrak nilai dari LLM output menggunakan Regex
 - Phase 2.3: Fix `requirements.txt` (upgrade streamlit & hapus pandas) agar bisa di-install tanpa error build numpy di Windows, lalu jalankan instalasi.
@@ -66,7 +70,7 @@
 1. Masukkan API Key (OpenAI atau DeepSeek) ke `.env`
 2. Test aplikasi dengan resume PDF asli + JD nyata
 3. Evaluasi kualitas output LLM, refine prompt jika perlu
-4. Mulai Phase 2 jika puas dengan hasilnya
+4. Uji parser salary range pada variasi JD Indonesia/English untuk improve coverage regex
 
 ---
 

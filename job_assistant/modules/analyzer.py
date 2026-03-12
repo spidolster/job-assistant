@@ -202,6 +202,33 @@ Raw Text:
         print(f"Extraction error: {e}")
         return {"company": "Unknown Company", "role": "Unknown Role"}
 
+def extract_salary_range(jd_text: str) -> str:
+    """
+    Extract salary range information from raw job description text.
+    Returns "-" when no clear salary signal is found.
+    """
+    import re
+
+    if not jd_text:
+        return "-"
+
+    normalized = " ".join(jd_text.split())
+
+    patterns = [
+        r"(?i)(rp\.?\s?\d[\d\.,]*\s?(?:juta|jt|miliar|k|rb)?\s?(?:-|–|to|sampai)\s?rp\.?\s?\d[\d\.,]*\s?(?:juta|jt|miliar|k|rb)?(?:\s*/\s*(?:bulan|month|tahun|year))?)",
+        r"(?i)((?:\d[\d\.,]*\s?(?:juta|jt|miliar|k|rb)\s?(?:-|–|to|sampai)\s?\d[\d\.,]*\s?(?:juta|jt|miliar|k|rb))\s*(?:/\s*(?:bulan|month|tahun|year))?)",
+        r"(?i)(salary\s*(?:range)?\s*[:\-]?\s*rp\.?\s?\d[\d\.,]*\s?(?:-|–|to)\s?rp\.?\s?\d[\d\.,]*)",
+        r"(?i)(gaji\s*(?:range)?\s*[:\-]?\s*rp\.?\s?\d[\d\.,]*\s?(?:-|–|to|sampai)\s?rp\.?\s?\d[\d\.,]*)",
+    ]
+
+    for pattern in patterns:
+        match = re.search(pattern, normalized)
+        if match:
+            return match.group(1).strip()
+
+    return "-"
+
+
 def extract_match_score(analysis_text: str) -> int:
     """
     Extracts the match score percentage from the LLM analysis text using Regex.
