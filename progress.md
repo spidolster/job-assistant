@@ -8,8 +8,7 @@
 
 > One sentence. Where are we RIGHT NOW?
 
-**Status**: PR blocker untuk merge ditangani dengan hardening integration test (isolasi global path restore); suite tetap hijau.
-**Status**: Diskusi best practice testing sudah dirumuskan; strategi test terpusat dan scalable didokumentasikan sebelum implementasi test baru.
+**Status**: Project health check berjalan; ditemukan dan diperbaiki bug risiko overwrite file resume pada re-upload duplicate filename, test suite tetap hijau.
 
 ---
 
@@ -43,6 +42,10 @@
 > What was done last time? AI writes this at end of each session.
 
 **Date**: 2026-03-12
+- Jalankan audit baseline: `pytest -q`, `compileall`, dan smoke test `test_extract.py` untuk memetakan kesehatan project saat ini.
+- Temukan inkonsistensi storage: re-upload resume dengan `custom_name` yang sama dapat menimpa file fisik meski record DB tetap lama.
+- Fix `save_resume()`: early-return jika `custom_name` sudah ada, gunakan timestamp microseconds + guard collision untuk upload normal, dan batasi fallback exception ke `sqlite3.IntegrityError`.
+- Perkuat integration test duplicate resume: verifikasi file asli tidak tertimpa pada upload duplikat.
 - Revert commit test suite otomatis karena user meminta diskusi strategi testing dulu sebelum ada perubahan kode baru.
 - Tindak lanjuti blocker merge dengan hardening integration test: restore global path (`db.DB_DIR`, `db.DB_PATH`, `storage._RESUMES_DIR`) di tearDown agar tidak meninggalkan side effect lintas test.
 - Rapikan log test duplicate resume dengan patch `print` agar output CI lebih bersih.
@@ -110,3 +113,4 @@
 
 *Last updated: 2026-03-12 (session update: merge blocker handled via test hardening)*
 *Last updated: 2026-03-12 (session update: testing strategy discussion draft documented)*
+*Last updated: 2026-03-12 (session update: health check + resume overwrite fix)*

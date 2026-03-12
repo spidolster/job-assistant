@@ -93,6 +93,7 @@
 - Integration test tracker/storage terbaik dijalankan dengan SQLite temporary DB + patch extractor I/O agar test tetap cepat, deterministic, dan tidak tergantung file PDF/network nyata.
 - Batas testing disepakati: setelah area urgent tercakup, hentikan ekspansi test non-urgent dan kembali fokus ke core task agar delivery tetap rapi.
 - Untuk test yang mem-patch global/module-level path, selalu restore state di tearDown agar PR lebih mudah merge dan test tidak flaky di CI.
+- Untuk penyimpanan resume, cek duplikat filename di DB sebelum menulis file fisik; ini mencegah mismatch DB-vs-file saat upload ulang nama yang sama.
 
 ---
 

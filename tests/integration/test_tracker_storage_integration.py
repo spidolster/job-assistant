@@ -58,15 +58,18 @@ class TestTrackerStorageIntegration(unittest.TestCase):
         with patch("modules.storage.extract_text_from_uploaded_pdf", return_value="resume text"):
             first = storage.save_resume(uploaded, custom_name="ari_resume")
 
-        uploaded.seek(0)
+        uploaded = _FakeUploadedFile("resume.pdf", b"new-content-should-not-overwrite")
         with patch("modules.storage.extract_text_from_uploaded_pdf", return_value="resume text"):
-            with patch("builtins.print"):
-                second = storage.save_resume(uploaded, custom_name="ari_resume")
+            second = storage.save_resume(uploaded, custom_name="ari_resume")
 
         self.assertIsNotNone(first["id"])
         self.assertEqual(first["id"], second["id"])
         self.assertEqual(first["filename"], "ari_resume.pdf")
         self.assertEqual(second["filename"], "ari_resume.pdf")
+
+        saved_file = storage._RESUMES_DIR / first["filename"]
+        self.assertTrue(saved_file.exists())
+        self.assertEqual(saved_file.read_bytes(), b"fake-pdf-binary")
 
         conn = db.get_db_connection()
         cursor = conn.cursor()

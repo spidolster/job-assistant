@@ -70,6 +70,7 @@
 - [x] Audit smoke test script (`test_extract.py`) dan hilangkan hardcoded credential
 - [x] Samakan dokumentasi README dengan implementasi extractor saat ini (DeepSeek)
 - [x] Jalankan validasi cepat (`compileall`, smoke test extraction)
+- [x] Perbaiki potensi overwrite resume saat re-upload filename sama (custom_name) dan tambah guard test integrasi
 
 
 ### 12. Test Strategy Discussion (pre-implementation)
