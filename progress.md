@@ -9,6 +9,7 @@
 > One sentence. Where are we RIGHT NOW?
 
 **Status**: PR blocker untuk merge ditangani dengan hardening integration test (isolasi global path restore); suite tetap hijau.
+**Status**: Diskusi best practice testing sudah dirumuskan; strategi test terpusat dan scalable didokumentasikan sebelum implementasi test baru.
 
 ---
 
@@ -87,6 +88,7 @@
 2. Jalankan Streamlit dan lakukan full flow test dengan resume PDF asli + JD nyata
 3. Evaluasi kualitas output LLM dan akurasi ekstraksi company/role pada beberapa format JD
 4. Pause penambahan test non-urgent; kembali ke core task implementasi fitur utama
+4. Sepakati prioritas test implementasi pertama dari blueprint `docs/testing_strategy.md`
 
 ---
 
@@ -107,3 +109,4 @@
 ---
 
 *Last updated: 2026-03-12 (session update: merge blocker handled via test hardening)*
+*Last updated: 2026-03-12 (session update: testing strategy discussion draft documented)*

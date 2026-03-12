@@ -97,3 +97,7 @@
 ---
 
 *Last updated: 2026-03-12 (updated: integration test isolation lesson)*
+
+---
+
+*Last updated: 2026-03-12 (updated: testing strategy principle)*
