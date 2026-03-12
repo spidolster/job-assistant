@@ -3,6 +3,7 @@ storage.py — Manage local file storage for resumes and DB records.
 Saves uploaded PDFs to data/resumes/ and saves records to SQLite DB.
 """
 import os
+import sqlite3
 from pathlib import Path
 from datetime import datetime
 from modules.db import get_db_connection
@@ -14,6 +15,13 @@ def _ensure_resumes_dir():
     """Create the resumes directory if it doesn't exist."""
     _RESUMES_DIR.mkdir(parents=True, exist_ok=True)
 
+
+def _get_existing_resume_id(cursor, filename: str) -> int | None:
+    """Return existing resume ID by filename, or None if not found."""
+    cursor.execute("SELECT id FROM resumes WHERE filename = ?", (filename,))
+    row = cursor.fetchone()
+    return row["id"] if row else None
+
 def save_resume(uploaded_file, custom_name: str = "") -> dict:
     """
     Save an uploaded PDF file locally and its text to SQLite.
@@ -22,29 +30,38 @@ def save_resume(uploaded_file, custom_name: str = "") -> dict:
     """
     _ensure_resumes_dir()
     
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
     if custom_name:
         filename = f"{custom_name}.pdf"
+        existing_id = _get_existing_resume_id(cursor, filename)
+        if existing_id:
+            conn.close()
+            return {"id": existing_id, "filename": filename}
     else:
-        # Use original filename, prepend timestamp to avoid collisions
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        # Use microseconds to reduce same-second collisions on repeated uploads.
         original_name = Path(uploaded_file.name).stem
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S_%f")
         filename = f"{timestamp}_{original_name}.pdf"
-    
+
+        # Extra safety in case a generated name already exists.
+        counter = 1
+        while (_RESUMES_DIR / filename).exists() or _get_existing_resume_id(cursor, filename):
+            filename = f"{timestamp}_{original_name}_{counter}.pdf"
+            counter += 1
+
     filepath = _RESUMES_DIR / filename
-    
+
     # Save the physical PDF file
     file_bytes = uploaded_file.getvalue()
     with open(filepath, "wb") as f:
         f.write(file_bytes)
-    
+
     # Reset pointer and extract text
     uploaded_file.seek(0)
     text_content = extract_text_from_uploaded_pdf(uploaded_file)
     uploaded_file.seek(0)
-    
-    # Insert record into database (handle duplicate filenames gracefully)
-    conn = get_db_connection()
-    cursor = conn.cursor()
     
     try:
         cursor.execute(
@@ -53,12 +70,9 @@ def save_resume(uploaded_file, custom_name: str = "") -> dict:
         )
         resume_id = cursor.lastrowid
         conn.commit()
-    except Exception as e:
+    except sqlite3.IntegrityError:
         # Likely UNIQUE constraint on filename — look up the existing record
-        print(f"Resume already exists in DB (expected for re-uploads): {e}")
-        cursor.execute("SELECT id FROM resumes WHERE filename = ?", (filename,))
-        row = cursor.fetchone()
-        resume_id = row["id"] if row else None
+        resume_id = _get_existing_resume_id(cursor, filename)
     finally:
         conn.close()
         
